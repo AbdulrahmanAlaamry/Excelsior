@@ -26,7 +26,7 @@ To keep the application lightweight and free, Excelsior uses BYOK for automatic 
 2. Generate a personal API key in your account profile.
 3. Open Excelsior and you will be prompted to enter the API key.
 
-> **Advanced: Manual Configuration**
+> **Advanced: Manual Configuration:**
 > If you prefer to set up your key manually or need to edit it outside of the app:
 > 1. Open Excelsior at least once to generate the local `~/.excelsior/` folder (typically located at `C:\Users\YourUsername\.excelsior\`).
 > 2. Open the `config.properties` file inside that folder.
