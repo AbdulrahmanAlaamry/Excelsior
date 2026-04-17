@@ -20,11 +20,12 @@ Excelsior is a specialized, offline-first desktop application designed to help y
    * *Note: As an indie application, Windows SmartScreen may display an "Unknown Publisher" warning. Click **More info** -> **Run anyway**.*
 
 ## First-Time Setup (API Key)
-To keep the application lightweight and free, Excelsior uses BYOK for automatic cover art downloads. You will need a free API key from SteamGridDB.
+To keep the application lightweight and free, Excelsior uses bring-your-own-key (BYOK) for automatic cover art downloads. You will need a free API key from SteamGridDB.
 
 1. Create a free account at [SteamGridDB.com](https://www.steamgriddb.com/).
 2. Generate a personal API key in your account profile.
-3. Open Excelsior and you will be prompted to enter the API key.
+3. Open Excelsior and you will be prompted to enter the key.
+**WARNING: Please do not share this key with anyone!**
 
 > **Advanced: Manual Configuration**
 > 
