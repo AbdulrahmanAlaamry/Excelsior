@@ -2,7 +2,7 @@
 
 Excelsior is a specialized, offline-first desktop application designed to help you organize, filter, and track your video game collection. Built with a sleek, modern interface, it gives you complete control over your backlog without relying on bloated game launchers.
 
-<img width="3834" height="2033" alt="excelsior_gui" src="https://github.com/user-attachments/assets/24bee024-b51a-4f36-b404-470ded7ad07e" />
+<img width="1920" height="1080" alt="excelsior_gui" src="https://github.com/user-attachments/assets/24bee024-b51a-4f36-b404-470ded7ad07e" />
 
 ## Features
 * **Custom Library Management:** Add, edit, and categorize your games by playtime, release date, and completion status.
