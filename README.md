@@ -26,3 +26,6 @@ To keep the application lightweight and free, Excelsior uses BYOK for automatic 
 
 ## Privacy & Data
 Excelsior is an offline-first application. Your library data and API key never leave your computer, and no telemetry or tracking data is collected.
+
+## Feedback & Suggestions
+Excelsior is an actively maintained project. If you have an idea for a new feature, a suggestion for the UI, or if you run into a bug, [I would love to hear about it!](https://github.com/AbdulrahmanAlaamry/Excelsior/issues)
