@@ -25,6 +25,7 @@ To keep the application lightweight and free, Excelsior uses bring-your-own-key 
 1. Create a free account at [SteamGridDB.com](https://www.steamgriddb.com/).
 2. Generate a personal API key in your account profile.
 3. Open Excelsior and you will be prompted to enter the key.
+
 **WARNING: Please do not share this key with anyone!**
 
 > **Advanced: Manual Configuration**
