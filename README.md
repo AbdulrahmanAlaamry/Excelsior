@@ -24,8 +24,13 @@ To keep the application lightweight and free, Excelsior uses BYOK for automatic 
 
 1. Create a free account at [SteamGridDB.com](https://www.steamgriddb.com/).
 2. Generate a personal API key in your account profile.
-3. Open Excelsior for the first time. The app will generate a `config.properties` file in your `~/.excelsior/` folder (typically `C:\Users\YourUsername\.excelsior\`).
-4. Paste your API key into that file, save it, and restart the app. Cover art downloads will now be fully unlocked!
+3. Open Excelsior and you will be prompted to enter the API key.
+
+> **Advanced: Manual Configuration**
+> If you prefer to set up your key manually or need to edit it outside of the app:
+> 1. Open Excelsior at least once to generate the local `~/.excelsior/` folder (typically located at `C:\Users\YourUsername\.excelsior\`).
+> 2. Open the `config.properties` file inside that folder.
+> 3. Paste your API key into the file (e.g., `STEAMGRID_API_KEY=your_key_here`), save it, and restart the application.
 
 ## Privacy & Data
 Excelsior is an offline-first application. Your library data and API key never leave your computer, and no telemetry or tracking data is collected.
