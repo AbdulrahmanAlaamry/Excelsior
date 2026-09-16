@@ -1,4 +1,4 @@
-package dev.abdulrahman.excelsior.game;
+package dev.abdulrahman.excelsior.business.game;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
