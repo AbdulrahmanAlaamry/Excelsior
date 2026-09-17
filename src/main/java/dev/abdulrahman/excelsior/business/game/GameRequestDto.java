@@ -7,15 +7,25 @@ import java.time.format.DateTimeFormatter;
 
 public record GameRequestDto(
         String name,
-        Double length,
-        @JsonFormat(pattern = "dd/MM/yyyy")
-        LocalDate releaseDate
+        Double lengthNormal,
+        Double lengthComplete,
+        @JsonFormat(pattern = "dd/MM/yyyy") LocalDate releaseDate,
+        String coverUrl,
+        Double rating,
+        Integer ratingCount,
+        String synopsis,
+        String description
 ) {
     @Override
     public String toString() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return name +
-                "\nLength: " + length +
-                "\nRelease Date: " + releaseDate.format(formatter);
+                "\nLength (average): " + lengthNormal +
+                "\nLength (100% completion): " + lengthComplete +
+                "\nRelease Date: " + releaseDate.format(formatter) +
+                "\nCover URL: " + coverUrl +
+                "\nRating (" + ratingCount + " ratings): " + rating +
+                "\nSynopsis: " + synopsis +
+                "\nDescription: " + description;
     }
 }

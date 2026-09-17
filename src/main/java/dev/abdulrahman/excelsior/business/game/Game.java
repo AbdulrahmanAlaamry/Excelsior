@@ -62,7 +62,7 @@ public class Game {
 
     public void setAll(GameRequestDto dto) {
         setName(dto.name());
-        setLength(dto.length());
+        setLength(dto.lengthNormal());
         setReleaseDate(dto.releaseDate());
     }
 

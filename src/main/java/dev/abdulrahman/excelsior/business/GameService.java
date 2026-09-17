@@ -43,7 +43,7 @@ public class GameService {
     }
 
     private Game toEntity(GameRequestDto dto) {
-        return new Game(dto.name(), dto.length(), dto.releaseDate());
+        return new Game(dto.name(), dto.lengthNormal(), dto.releaseDate());
     }
 
     private GameResponseDto toDto(Game game) {
