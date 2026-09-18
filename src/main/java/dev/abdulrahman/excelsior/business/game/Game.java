@@ -1,9 +1,6 @@
 package dev.abdulrahman.excelsior.business.game;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -16,16 +13,36 @@ public class Game {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private Double length;
+    private Double lengthNormal;
+    private Double lengthComplete;
     private LocalDate releaseDate;
+    private String coverUrl;
+    private Double rating;
+    private Integer ratingCount;
+    @Column(length = 5000) private String synopsis;
+    @Column(length = 5000) private String description;
 
-    protected Game() {
-    }
+    protected Game() {}
 
-    public Game(String name, Double length, LocalDate releaseDate) {
+    public Game(String name,
+                Double lengthNormal,
+                Double lengthComplete,
+                LocalDate releaseDate,
+                String coverUrl,
+                Double rating,
+                Integer ratingCount,
+                String synopsis,
+                String description
+    ) {
         this.name = name;
-        this.length = length;
+        this.lengthNormal = lengthNormal;
+        this.lengthComplete = lengthComplete;
         this.releaseDate = releaseDate;
+        this.coverUrl = coverUrl;
+        this.rating = rating;
+        this.ratingCount = ratingCount;
+        this.synopsis = synopsis;
+        this.description = description;
     }
 
     public Long getId() {
@@ -44,12 +61,20 @@ public class Game {
         this.name = name;
     }
 
-    public Double getLength() {
-        return length;
+    public Double getLengthNormal() {
+        return lengthNormal;
     }
 
-    public void setLength(Double length) {
-        this.length = length;
+    public void setLengthNormal(Double lengthNormal) {
+        this.lengthNormal = lengthNormal;
+    }
+
+    public Double getLengthComplete() {
+        return lengthComplete;
+    }
+
+    public void setLengthComplete(Double lengthComplete) {
+        this.lengthComplete = lengthComplete;
     }
 
     public LocalDate getReleaseDate() {
@@ -60,10 +85,56 @@ public class Game {
         this.releaseDate = releaseDate;
     }
 
+    public String getCoverUrl() {
+        return coverUrl;
+    }
+
+    public void setCoverUrl(String coverUrl) {
+        this.coverUrl = coverUrl;
+    }
+
+    public Double getRating() {
+        return rating;
+    }
+
+    public void setRating(Double rating) {
+        this.rating = rating;
+    }
+
+    public Integer getRatingCount() {
+        return ratingCount;
+    }
+
+    public void setRatingCount(Integer ratingCount) {
+        this.ratingCount = ratingCount;
+    }
+
+    public String getSynopsis() {
+        return synopsis;
+    }
+
+    public void setSynopsis(String synopsis) {
+        this.synopsis = synopsis;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public void setAll(GameRequestDto dto) {
         setName(dto.name());
-        setLength(dto.lengthNormal());
+        setLengthNormal(dto.lengthNormal());
+        setLengthComplete(dto.lengthComplete());
         setReleaseDate(dto.releaseDate());
+        setCoverUrl(dto.coverUrl());
+        setRating(dto.rating());
+        setRatingCount(dto.ratingCount());
+        setSynopsis(dto.synopsis());
+        setDescription(dto.description());
     }
 
     @Override
@@ -81,9 +152,13 @@ public class Game {
     @Override
     public String toString() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        return name +
-                "ID: " + id +
-                "\nLength: " + length +
-                "\nRelease Date: " + releaseDate.format(formatter);
+        return name + " (ID: " + id + ")" +
+                "\nLength (average): " + lengthNormal +
+                "\nLength (100% completion): " + lengthComplete +
+                "\nRelease Date: " + releaseDate.format(formatter) +
+                "\nCover URL: " + coverUrl +
+                "\nRating (" + ratingCount + " ratings): " + rating +
+                "\nSynopsis: " + synopsis +
+                "\nDescription: " + description;
     }
 }

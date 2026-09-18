@@ -15,6 +15,12 @@ public class GameController {
         this.service = service;
     }
 
+    @PostMapping("/search")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void searchAndAddGame(@RequestParam String query) {
+        this.service.searchAndAddGame(query);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void addGame(@RequestBody GameRequestDto dto) {

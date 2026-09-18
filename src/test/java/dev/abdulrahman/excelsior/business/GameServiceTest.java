@@ -5,6 +5,7 @@ import dev.abdulrahman.excelsior.business.game.GameNotFoundException;
 import dev.abdulrahman.excelsior.business.game.GameRequestDto;
 import dev.abdulrahman.excelsior.business.game.GameResponseDto;
 import dev.abdulrahman.excelsior.persistence.GameRepository;
+import dev.abdulrahman.excelsior.mapper.DtoMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +29,9 @@ class GameServiceTest {
     @Mock
     private GameRepository gameRepository;
 
+    @Mock
+    private DtoMapper mapper;
+
     @InjectMocks
     private GameService gameService;
 
@@ -39,7 +43,8 @@ class GameServiceTest {
 
     @BeforeEach
     void setUp() {
-        game = new Game("Super Mario", 15.0, LocalDate.of(1985, 9, 13));
+        game = new Game("Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13),
+                "cover_url", 95.0, 1000, "synopsis", "desc");
         game.setId(1L);
 
         requestDto = new GameRequestDto("Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13),
@@ -48,30 +53,36 @@ class GameServiceTest {
 
     @Test
     void addGame_SavesGame() {
+        when(mapper.toGameEntity(requestDto)).thenReturn(game);
+        
         gameService.addGame(requestDto);
 
         verify(gameRepository, times(1)).save(gameCaptor.capture());
         Game savedGame = gameCaptor.getValue();
         assertEquals("Super Mario", savedGame.getName());
-        assertEquals(15.0, savedGame.getLength());
+        assertEquals(15.0, savedGame.getLengthNormal());
         assertEquals(LocalDate.of(1985, 9, 13), savedGame.getReleaseDate());
     }
 
     @Test
     void getAllGames_ReturnsListOfGames() {
         when(gameRepository.findAll()).thenReturn(List.of(game));
+        GameResponseDto responseDto = new GameResponseDto(1L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13), "cover", 95.0, 1000, "synopsis", "desc");
+        when(mapper.toGameResponseDto(game)).thenReturn(responseDto);
 
         List<GameResponseDto> results = gameService.getAllGames();
 
         assertEquals(1, results.size());
         assertEquals("Super Mario", results.get(0).name());
-        assertEquals(15.0, results.get(0).length());
+        assertEquals(15.0, results.get(0).lengthNormal());
         verify(gameRepository, times(1)).findAll();
     }
 
     @Test
     void getGameById_GameExists_ReturnsGame() {
         when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+        GameResponseDto responseDto = new GameResponseDto(1L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13), "cover", 95.0, 1000, "synopsis", "desc");
+        when(mapper.toGameResponseDto(game)).thenReturn(responseDto);
 
         GameResponseDto result = gameService.getGameById(1L);
 
@@ -98,7 +109,7 @@ class GameServiceTest {
 
         verify(gameRepository, times(1)).save(game);
         assertEquals("Super Mario Bros.", game.getName());
-        assertEquals(20.0, game.getLength());
+        assertEquals(20.0, game.getLengthNormal());
     }
 
     @Test

@@ -49,7 +49,7 @@ class GameControllerTest {
 
     @Test
     void getAllGames_ReturnsGameList() throws Exception {
-        GameResponseDto responseDto = new GameResponseDto(1L, "Halo", 10.0, LocalDate.of(2001, 11, 15));
+        GameResponseDto responseDto = new GameResponseDto(1L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15), "url", 95.0, 100, "syn", "desc");
         when(gameService.getAllGames()).thenReturn(List.of(responseDto));
 
         mockMvc.perform(get("/api/games"))
@@ -57,14 +57,14 @@ class GameControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].name").value("Halo"))
-                .andExpect(jsonPath("$[0].length").value(10.0));
+                .andExpect(jsonPath("$[0].lengthNormal").value(10.0));
 
         verify(gameService, times(1)).getAllGames();
     }
 
     @Test
     void getGame_GameExists_ReturnsGame() throws Exception {
-        GameResponseDto responseDto = new GameResponseDto(1L, "Halo", 10.0, LocalDate.of(2001, 11, 15));
+        GameResponseDto responseDto = new GameResponseDto(1L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15), "url", 95.0, 100, "syn", "desc");
         when(gameService.getGameById(1L)).thenReturn(responseDto);
 
         mockMvc.perform(get("/api/games/{id}", 1L))
