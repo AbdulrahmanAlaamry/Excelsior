@@ -89,7 +89,9 @@ class ClientServiceTest {
                 .setBody(ttbResponseBody)
                 .addHeader("Content-Type", "application/json"));
 
-        GameRequestDto expectedDto = new GameRequestDto("The Legend of Zelda", 10.0, 20.0, LocalDate.now(), "http://cover.url", 90.0, 100, "synopsis", "desc");
+        GameRequestDto expectedDto = new GameRequestDto(12345L, "Awesome Game", 10.0, 20.0,
+                LocalDate.of(2023, 10, 15), "http://example.com/cover.jpg",
+                85.5, 120, "A great storyline", "A short summary");
         when(mapper.toGameRequestDto(any(GameDto.class), any(TimeToBeatDto.class))).thenReturn(expectedDto);
 
         GameRequestDto result = clientService.searchGames(searchQuery);

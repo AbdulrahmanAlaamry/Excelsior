@@ -75,6 +75,6 @@ public class DtoMapper {
     }
 
     private Double round(Double d) {
-        return Math.round(d * 10.0) / 10.0;
+        return d != null ? Math.round(d * 10.0) / 10.0 : null;
     }
 }

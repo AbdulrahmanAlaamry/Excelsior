@@ -21,9 +21,13 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import org.springframework.context.annotation.Import;
+import dev.abdulrahman.excelsior.presentation.config.WebConfig;
+import dev.abdulrahman.excelsior.presentation.config.RateLimitInterceptor;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @WebMvcTest(GameController.class)
+@Import({WebConfig.class, RateLimitInterceptor.class})
 class GameControllerTest {
 
     @Autowired
@@ -36,7 +40,7 @@ class GameControllerTest {
 
     @Test
     void addGame_ValidRequest_ReturnsCreated() throws Exception {
-        GameRequestDto requestDto = new GameRequestDto("Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15),
+        GameRequestDto requestDto = new GameRequestDto(12345L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15),
                 "url", 95.0, 100, "syn", "desc");
 
         mockMvc.perform(post("/api/games")
@@ -57,7 +61,7 @@ class GameControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].name").value("Halo"))
-                .andExpect(jsonPath("$[0].lengthNormal").value(10.0));
+                .andExpect(jsonPath("$[0].length_normal").value(10.0));
 
         verify(gameService, times(1)).getAllGames();
     }
@@ -87,7 +91,7 @@ class GameControllerTest {
 
     @Test
     void updateGame_ValidRequest_ReturnsOk() throws Exception {
-        GameRequestDto requestDto = new GameRequestDto("Halo 2", 12.0, 15.0, LocalDate.of(2004, 11, 9),
+        GameRequestDto requestDto = new GameRequestDto(12345L, "Halo 2", 12.0, 15.0, LocalDate.of(2004, 11, 9),
                 "url", 95.0, 100, "syn", "desc");
 
         mockMvc.perform(put("/api/games/{id}", 1L)
@@ -100,7 +104,7 @@ class GameControllerTest {
 
     @Test
     void updateGame_GameDoesNotExist_ReturnsNotFound() throws Exception {
-        GameRequestDto requestDto = new GameRequestDto("Halo 2", 12.0, 15.0, LocalDate.of(2004, 11, 9),
+        GameRequestDto requestDto = new GameRequestDto(12345L, "Halo 2", 12.0, 15.0, LocalDate.of(2004, 11, 9),
                 "url", 95.0, 100, "syn", "desc");
         
         doThrow(new GameNotFoundException()).when(gameService).updateGame(eq(99L), any(GameRequestDto.class));
@@ -129,5 +133,36 @@ class GameControllerTest {
                 .andExpect(status().isNotFound());
 
         verify(gameService, times(1)).deleteGame(99L);
+    }
+
+    @Test
+    void searchAndAddGame_ValidRequest_ReturnsCreated() throws Exception {
+        mockMvc.perform(post("/api/games/search")
+                .param("query", "God of War")
+                .with(request -> { request.setRemoteAddr("1.1.1.1"); return request; })
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated());
+
+        verify(gameService, times(1)).searchAndAddGame("God of War");
+    }
+
+    @Test
+    void searchAndAddGame_RateLimitExceeded_ReturnsTooManyRequests() throws Exception {
+        for (int i = 0; i < 5; i++) {
+            mockMvc.perform(post("/api/games/search")
+                    .param("query", "God of War")
+                    .with(request -> { request.setRemoteAddr("2.2.2.2"); return request; })
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isCreated());
+        }
+
+        mockMvc.perform(post("/api/games/search")
+                .param("query", "God of War")
+                .with(request -> { request.setRemoteAddr("2.2.2.2"); return request; })
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isTooManyRequests())
+                .andExpect(content().string("Too many search requests. Please wait a minute and try again."));
+        
+        verify(gameService, times(5)).searchAndAddGame("God of War");
     }
 }
