@@ -25,6 +25,9 @@ public class GameService {
     }
 
     public void addGame(GameRequestDto dto) {
+        if (repo.existsByIgdbId(dto.igdbId())) {
+            throw new GameAlreadyExistsException();
+        }
         repo.save(mapper.toGameEntity(dto));
     }
 

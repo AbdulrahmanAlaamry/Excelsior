@@ -27,6 +27,7 @@ public class DtoMapper {
                 : 0.0;
 
         return new GameRequestDto(
+                Long.valueOf(gameDto.id()),
                 gameDto.name(),
                 lengthNormal,
                 lengthComplete,
@@ -41,6 +42,7 @@ public class DtoMapper {
 
     public Game toGameEntity(GameRequestDto dto) {
         return new Game(
+                dto.igdbId(),
                 dto.name(),
                 dto.lengthNormal(),
                 dto.lengthComplete(),

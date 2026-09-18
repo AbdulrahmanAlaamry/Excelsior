@@ -10,6 +10,7 @@ import java.time.format.DateTimeFormatter;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record GameRequestDto(
+        @JsonProperty("igdb_id") Long igdbId,
         String name,
         @JsonProperty("length_normal") Double lengthNormal,
         @JsonProperty("length_complete") Double lengthComplete,

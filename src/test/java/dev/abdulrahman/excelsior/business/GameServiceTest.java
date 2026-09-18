@@ -43,12 +43,14 @@ class GameServiceTest {
 
     @BeforeEach
     void setUp() {
-        game = new Game("Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13),
-                "cover_url", 95.0, 1000, "synopsis", "desc");
+        game = new Game(12345L, "Super Mario", 15.0, 20.0,
+                LocalDate.of(1985, 9, 13), "cover_url", 95.0,
+                1000, "synopsis", "desc");
         game.setId(1L);
 
-        requestDto = new GameRequestDto("Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13),
-                "cover_url", 95.0, 1000, "synopsis", "desc");
+        requestDto = new GameRequestDto(12345L, "Super Mario", 15.0, 20.0,
+                LocalDate.of(1985, 9, 13), "cover_url", 95.0,
+                1000, "synopsis", "desc");
     }
 
     @Test
@@ -102,8 +104,9 @@ class GameServiceTest {
     @Test
     void updateGame_GameExists_UpdatesAndSaves() {
         when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
-        GameRequestDto updateDto = new GameRequestDto("Super Mario Bros.", 20.0, 25.0, LocalDate.of(1985, 9, 13),
-                "cover", 100.0, 2000, "synopsis2", "desc2");
+        GameRequestDto updateDto = new GameRequestDto(54321L, "Super Mario Bros.", 20.0,
+                25.0, LocalDate.of(1985, 9, 13), "cover", 100.0,
+                2000, "synopsis2", "desc2");
 
         gameService.updateGame(1L, updateDto);
 

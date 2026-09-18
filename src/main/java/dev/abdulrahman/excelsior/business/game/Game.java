@@ -12,6 +12,7 @@ public class Game {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private Long igdbId;
     private String name;
     private Double lengthNormal;
     private Double lengthComplete;
@@ -24,7 +25,8 @@ public class Game {
 
     protected Game() {}
 
-    public Game(String name,
+    public Game(Long igdbId,
+                String name,
                 Double lengthNormal,
                 Double lengthComplete,
                 LocalDate releaseDate,
@@ -34,15 +36,16 @@ public class Game {
                 String synopsis,
                 String description
     ) {
-        this.name = name;
-        this.lengthNormal = lengthNormal;
-        this.lengthComplete = lengthComplete;
-        this.releaseDate = releaseDate;
-        this.coverUrl = coverUrl;
-        this.rating = rating;
-        this.ratingCount = ratingCount;
-        this.synopsis = synopsis;
-        this.description = description;
+        setIgdbId(igdbId);
+        setName(name);
+        setLengthNormal(lengthNormal);
+        setLengthComplete(lengthComplete);
+        setReleaseDate(releaseDate);
+        setCoverUrl(coverUrl);
+        setRating(rating);
+        setRatingCount(ratingCount);
+        setSynopsis(synopsis);
+        setDescription(description);
     }
 
     public Long getId() {
@@ -51,6 +54,14 @@ public class Game {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getIgdbId() {
+        return igdbId;
+    }
+
+    public void setIgdbId(Long igdbId) {
+        this.igdbId = igdbId;
     }
 
     public String getName() {
@@ -126,6 +137,7 @@ public class Game {
     }
 
     public void setAll(GameRequestDto dto) {
+        setIgdbId(dto.igdbId());
         setName(dto.name());
         setLengthNormal(dto.lengthNormal());
         setLengthComplete(dto.lengthComplete());
