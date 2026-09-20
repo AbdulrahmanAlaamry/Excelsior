@@ -32,11 +32,14 @@ public class ClientService {
         this.restClient = RestClient.create();
     }
 
+    // TODO: Look into including more metadata like development studios and DLCs.
     public GameRequestDto searchGames(String query) {
         GameDto[] gameResponse = initiateRequest(
                 "/games",
                 "fields id, cover.url, cover.width, cover.height, first_release_date, name, slug, storyline, "
-                        + "summary, total_rating, total_rating_count; search \"" + query + "\";",
+                        + "summary, total_rating, total_rating_count; " +
+                        "search \"" + query + "\";" +
+                        "where game_type = (0, 8, 9) & version_parent = null;",
                 GameDto[].class
         );
 
