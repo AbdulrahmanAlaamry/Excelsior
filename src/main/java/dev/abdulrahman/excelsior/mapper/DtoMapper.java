@@ -97,6 +97,12 @@ public class DtoMapper {
         );
     }
 
+    public List<GameResponseDto> toGameResponseDtoList(List<Game> games) {
+        return games.stream()
+                .map(this::toGameResponseDto)
+                .toList();
+    }
+
     private Double secondsToHours(Integer seconds) {
         return round(seconds / 3600.0);
     }

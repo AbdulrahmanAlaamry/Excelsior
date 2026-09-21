@@ -1,10 +1,15 @@
 package dev.abdulrahman.excelsior.presentation;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import dev.abdulrahman.excelsior.business.GameService;
 import dev.abdulrahman.excelsior.business.game.GameRequestDto;
 import dev.abdulrahman.excelsior.business.game.GameResponseDto;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/games")
@@ -28,8 +33,26 @@ public class GameController {
     }
 
     @GetMapping
-    public Iterable<GameResponseDto> getAllGames() {
-        return this.service.getAllGames();
+    public List<GameResponseDto> getAllGames(
+            @RequestParam(name = "min_rating", required = false) Double minRating,
+            @RequestParam(name = "max_rating", required = false) Double maxRating,
+            @RequestParam(name = "name_contains", required = false) String nameContains,
+            @RequestParam(name = "genre_contains", required = false) String genreContains,
+            @RequestParam(name = "min_length_normal", required = false) Double minLengthNormal,
+            @RequestParam(name = "max_length_normal", required = false) Double maxLengthNormal,
+            @RequestParam(name = "min_length_complete", required = false) Double minLengthComplete,
+            @RequestParam(name = "max_length_complete", required = false) Double maxLengthComplete,
+            @RequestParam(name = "min_date", required = false) @JsonFormat(pattern = "dd/MM/yyyy") LocalDate minDate,
+            @RequestParam(name = "max_date", required = false) @JsonFormat(pattern = "dd/MM/yyyy") LocalDate maxDate,
+            Sort sort
+            ) {
+
+        // Let the database handle all the filtering logic dynamically!
+        return this.service.findGamesDynamically(
+                minRating, maxRating, nameContains, genreContains,
+                minLengthNormal, maxLengthNormal, minLengthComplete, maxLengthComplete,
+                minDate, maxDate, sort
+        );
     }
 
     @GetMapping("/{id}")

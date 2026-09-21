@@ -4,8 +4,11 @@ import dev.abdulrahman.excelsior.business.game.*;
 import dev.abdulrahman.excelsior.integration.ClientService;
 import dev.abdulrahman.excelsior.mapper.DtoMapper;
 import dev.abdulrahman.excelsior.persistence.GameRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -31,10 +34,9 @@ public class GameService {
         repo.save(mapper.toGameEntity(dto));
     }
 
+    @Deprecated(forRemoval = true)
     public List<GameResponseDto> getAllGames() {
-        return repo.findAll().stream()
-                .map(mapper::toGameResponseDto)
-                .toList();
+        return mapper.toGameResponseDtoList(repo.findAll());
     }
 
     public GameResponseDto getGameById(Long id) {
@@ -49,6 +51,48 @@ public class GameService {
 
     public void deleteGame(Long id) {
         repo.delete(findGameById(id));
+    }
+
+    public List<GameResponseDto> findGamesDynamically(
+            Double minRating, Double maxRating, String nameContains, String genreContains,
+            Double minLengthNormal, Double maxLengthNormal, Double minLengthComplete, Double maxLengthComplete, 
+            LocalDate minDate, LocalDate maxDate, org.springframework.data.domain.Sort sort
+    ) {
+        return mapper.toGameResponseDtoList(
+                repo.findDynamically(
+                        minRating, maxRating, nameContains, genreContains,
+                        minLengthNormal, maxLengthNormal, minLengthComplete, maxLengthComplete, 
+                        minDate, maxDate, sort
+                )
+        );
+    }
+
+    public List<GameResponseDto> getAllSortedByName() {
+        return mapper.toGameResponseDtoList(repo.findAllByOrderByNameAsc());
+    }
+
+    public List<GameResponseDto> getAllSortedByRating() {
+        return mapper.toGameResponseDtoList(repo.findAllByOrderByRatingDesc());
+    }
+
+    public List<GameResponseDto> getAllSortedByNewest() {
+        return mapper.toGameResponseDtoList(repo.findAllByOrderByReleaseDateDesc());
+    }
+
+    public List<GameResponseDto> getAllSortedByOldest() {
+        return mapper.toGameResponseDtoList(repo.findAllByOrderByReleaseDateAsc());
+    }
+
+    public List<GameResponseDto> getAllSortedByLength() {
+        return mapper.toGameResponseDtoList(repo.findAllByOrderByLengthCompleteDesc());
+    }
+
+    public List<GameResponseDto> getTop10HighestRated() {
+        return mapper.toGameResponseDtoList(repo.findTop10ByOrderByRatingDesc());
+    }
+
+    public Page<GameResponseDto> getByLengthNormalLessThanEqualPaged(Double hours, Pageable pageable) {
+        return repo.findByLengthNormalLessThanEqual(hours, pageable).map(mapper::toGameResponseDto);
     }
 
     private Game findGameById(Long id) {
