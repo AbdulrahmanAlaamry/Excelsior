@@ -3,6 +3,7 @@ package dev.abdulrahman.excelsior.mapper;
 import dev.abdulrahman.excelsior.business.game.Game;
 import dev.abdulrahman.excelsior.business.game.GameRequestDto;
 import dev.abdulrahman.excelsior.business.game.GameResponseDto;
+import dev.abdulrahman.excelsior.integration.dto.EngineDto;
 import dev.abdulrahman.excelsior.integration.dto.GameDto;
 import dev.abdulrahman.excelsior.integration.dto.TimeToBeatDto;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,12 @@ public class DtoMapper {
                 ? secondsToHours(timeToBeatDto.completely())
                 : 0.0;
 
+        String primaryEngine = "Unknown/Proprietary";
+        EngineDto[] engines = gameDto.engines();
+        if (engines != null && engines.length > 0) {
+            primaryEngine = engines[0].name();
+        }
+
         return new GameRequestDto(
                 Long.valueOf(gameDto.id()),
                 gameDto.name(),
@@ -36,7 +43,8 @@ public class DtoMapper {
                 round(gameDto.rating()),
                 gameDto.ratingCount(),
                 gameDto.storyline(),
-                gameDto.summary()
+                gameDto.summary(),
+                primaryEngine
         );
     }
 
@@ -51,7 +59,8 @@ public class DtoMapper {
                 dto.rating(),
                 dto.ratingCount(),
                 dto.synopsis(),
-                dto.description()
+                dto.description(),
+                dto.primaryEngine()
         );
     }
 
@@ -66,7 +75,8 @@ public class DtoMapper {
                 game.getRating(),
                 game.getRatingCount(),
                 game.getSynopsis(),
-                game.getDescription()
+                game.getDescription(),
+                game.getPrimaryEngine()
         );
     }
 

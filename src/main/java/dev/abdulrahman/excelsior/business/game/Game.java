@@ -22,6 +22,7 @@ public class Game {
     private Integer ratingCount;
     @Column(length = 5000) private String synopsis;
     @Column(length = 5000) private String description;
+    private String primaryEngine;
 
     protected Game() {}
 
@@ -34,7 +35,8 @@ public class Game {
                 Double rating,
                 Integer ratingCount,
                 String synopsis,
-                String description
+                String description,
+                String primaryEngine
     ) {
         setIgdbId(igdbId);
         setName(name);
@@ -46,6 +48,7 @@ public class Game {
         setRatingCount(ratingCount);
         setSynopsis(synopsis);
         setDescription(description);
+        setPrimaryEngine(primaryEngine);
     }
 
     public Long getId() {
@@ -136,6 +139,14 @@ public class Game {
         this.description = description;
     }
 
+    public String getPrimaryEngine() {
+        return primaryEngine;
+    }
+
+    public void setPrimaryEngine(String primaryEngine) {
+        this.primaryEngine = primaryEngine;
+    }
+
     public void setAll(GameRequestDto dto) {
         setIgdbId(dto.igdbId());
         setName(dto.name());
@@ -147,6 +158,7 @@ public class Game {
         setRatingCount(dto.ratingCount());
         setSynopsis(dto.synopsis());
         setDescription(dto.description());
+        setPrimaryEngine(dto.primaryEngine());
     }
 
     @Override
