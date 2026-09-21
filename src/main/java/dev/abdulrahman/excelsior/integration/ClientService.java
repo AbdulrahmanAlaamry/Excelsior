@@ -77,8 +77,9 @@ public class ClientService {
     }
 
     private String getAccessToken() {
-        return cachedToken != null
-                ? cachedToken
-                : authService.fetchAccessToken();
+        if (cachedToken == null) {
+            cachedToken = authService.fetchAccessToken();
+        }
+        return cachedToken;
     }
 }

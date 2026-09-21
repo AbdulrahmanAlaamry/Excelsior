@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -91,7 +92,7 @@ class ClientServiceTest {
 
         GameRequestDto expectedDto = new GameRequestDto(12345L, "Awesome Game", 10.0, 20.0,
                 LocalDate.of(2023, 10, 15), "http://example.com/cover.jpg",
-                85.5, 120, "A great storyline", "A short summary", "engine", new String[]{"Action"}, new String[]{"Sony"});
+                85.5, 120, "A great storyline", "A short summary", "engine", List.of("Action"), List.of("Sony"));
         when(mapper.toGameRequestDto(any(GameDto.class), any(TimeToBeatDto.class))).thenReturn(expectedDto);
 
         GameRequestDto result = clientService.searchGames(searchQuery);

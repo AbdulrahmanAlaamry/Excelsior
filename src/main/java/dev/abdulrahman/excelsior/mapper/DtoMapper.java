@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
@@ -28,16 +29,20 @@ public class DtoMapper {
                 ? secondsToHours(timeToBeatDto.completely())
                 : 0.0;
 
+        String coverUrl = gameDto.cover() != null
+                ? gameDto.cover().url()
+                : null;
+
         String primaryEngine = "Unknown/Proprietary";
         EngineDto[] engines = gameDto.engines();
         if (engines != null && engines.length > 0) {
             primaryEngine = engines[0].name();
         }
 
-        String[] genres = parseArray(gameDto.genres(), GenreDto::name, String[]::new);
+        List<String> genres = parseArrayToList(gameDto.genres(), GenreDto::name);
 
-        CompanyDto[] companyDtos = parseArray(gameDto.involvedCompanies(), InvolvedCompanyDto::company, CompanyDto[]::new);
-        String[] companies = parseArray(companyDtos, CompanyDto::name, String[]::new);
+        CompanyDto[] companyDtos = parseArrayToArray(gameDto.involvedCompanies(), InvolvedCompanyDto::company, CompanyDto[]::new);
+        List<String> companies = parseArrayToList(companyDtos, CompanyDto::name);
 
         return new GameRequestDto(
                 Long.valueOf(gameDto.id()),
@@ -45,7 +50,7 @@ public class DtoMapper {
                 lengthNormal,
                 lengthComplete,
                 releaseDate,
-                gameDto.cover().url(),
+                coverUrl,
                 round(gameDto.rating()),
                 gameDto.ratingCount(),
                 gameDto.storyline(),
@@ -100,9 +105,15 @@ public class DtoMapper {
         return d != null ? Math.round(d * 10.0) / 10.0 : null;
     }
 
-    public <T, U> T[] parseArray(U[] arr, Function<U, T> mapper, IntFunction<T[]> arrayGenerator) {
+    public <T, U> T[] parseArrayToArray(U[] arr, Function<U, T> mapper, IntFunction<T[]> arrayGenerator) {
         return arr != null
                 ? Arrays.stream(arr).map(mapper).toArray(arrayGenerator)
                 : arrayGenerator.apply(0);
+    }
+
+    public <T, U> List<T> parseArrayToList(U[] arr, Function<U, T> mapper) {
+        return arr != null
+                ? Arrays.stream(arr).map(mapper).toList()
+                : List.of();
     }
 }

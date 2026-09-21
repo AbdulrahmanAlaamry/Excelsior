@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record GameResponseDto(
@@ -23,8 +24,8 @@ public record GameResponseDto(
         String synopsis,
         String description,
         @JsonProperty("primary_engine") String primaryEngine,
-        String[] genres,
-        String[] companies
+        List<String> genres,
+        List<String> companies
 ) {
     @Override
     public String toString() {

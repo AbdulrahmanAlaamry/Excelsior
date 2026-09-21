@@ -15,6 +15,7 @@ import java.time.ZoneId;
 import static org.junit.jupiter.api.Assertions.*;
 
 import dev.abdulrahman.excelsior.integration.dto.*;
+import java.util.List;
 
 class DtoMapperTest {
 
@@ -55,8 +56,8 @@ class DtoMapperTest {
         assertEquals("A great storyline", result.synopsis());
         assertEquals("A short summary", result.description());
         assertEquals("Unreal Engine 5", result.primaryEngine());
-        assertArrayEquals(new String[]{"Action", "Adventure"}, result.genres());
-        assertArrayEquals(new String[]{"Santa Monica Studio", "Sony Interactive Entertainment"}, result.companies());
+        assertEquals(List.of("Action", "Adventure"), result.genres());
+        assertEquals(List.of("Santa Monica Studio", "Sony Interactive Entertainment"), result.companies());
     }
 
     @Test
@@ -77,7 +78,7 @@ class DtoMapperTest {
         assertNull(result.synopsis());
         assertNull(result.description());
         assertEquals("Unknown/Proprietary", result.primaryEngine());
-        assertArrayEquals(new String[]{}, result.genres());
-        assertArrayEquals(new String[]{}, result.companies());
+        assertEquals(List.of(), result.genres());
+        assertEquals(List.of(), result.companies());
     }
 }

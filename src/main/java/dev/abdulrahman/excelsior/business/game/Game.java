@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -23,8 +25,10 @@ public class Game {
     @Column(length = 5000) private String synopsis;
     @Column(length = 5000) private String description;
     private String primaryEngine;
-    private String[] genres;
-    private String[] companies;
+    @ElementCollection
+    private List<String> genres;
+    @ElementCollection
+    private List<String> companies;
 
     protected Game() {}
 
@@ -39,8 +43,8 @@ public class Game {
                 String synopsis,
                 String description,
                 String primaryEngine,
-                String[] genres,
-                String[] companies
+                List<String> genres,
+                List<String> companies
     ) {
         setIgdbId(igdbId);
         setName(name);
@@ -153,19 +157,19 @@ public class Game {
         this.primaryEngine = primaryEngine;
     }
 
-    public String[] getGenres() {
+    public List<String> getGenres() {
         return genres;
     }
 
-    public void setGenres(String[] genres) {
+    public void setGenres(List<String> genres) {
         this.genres = genres;
     }
 
-    public String[] getCompanies() {
+    public List<String> getCompanies() {
         return companies;
     }
 
-    public void setCompanies(String[] companies) {
+    public void setCompanies(List<String> companies) {
         this.companies = companies;
     }
 
