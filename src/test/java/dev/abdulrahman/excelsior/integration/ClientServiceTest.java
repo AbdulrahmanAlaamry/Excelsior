@@ -91,7 +91,7 @@ class ClientServiceTest {
 
         GameRequestDto expectedDto = new GameRequestDto(12345L, "Awesome Game", 10.0, 20.0,
                 LocalDate.of(2023, 10, 15), "http://example.com/cover.jpg",
-                85.5, 120, "A great storyline", "A short summary");
+                85.5, 120, "A great storyline", "A short summary", "engine", new String[]{"Action"}, new String[]{"Sony"});
         when(mapper.toGameRequestDto(any(GameDto.class), any(TimeToBeatDto.class))).thenReturn(expectedDto);
 
         GameRequestDto result = clientService.searchGames(searchQuery);

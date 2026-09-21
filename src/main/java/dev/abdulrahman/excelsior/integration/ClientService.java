@@ -32,7 +32,6 @@ public class ClientService {
         this.restClient = RestClient.create();
     }
 
-    // TODO: Look into including more metadata like development studios and DLCs.
     public GameRequestDto searchGames(String query) {
         GameDto[] gameResponse = initiateRequest(
                 "/games",

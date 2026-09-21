@@ -41,7 +41,7 @@ class GameControllerTest {
     @Test
     void addGame_ValidRequest_ReturnsCreated() throws Exception {
         GameRequestDto requestDto = new GameRequestDto(12345L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15),
-                "url", 95.0, 100, "syn", "desc");
+                "url", 95.0, 100, "syn", "desc", "engine", new String[]{"Action"}, new String[]{"Bungie"});
 
         mockMvc.perform(post("/api/games")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -53,7 +53,7 @@ class GameControllerTest {
 
     @Test
     void getAllGames_ReturnsGameList() throws Exception {
-        GameResponseDto responseDto = new GameResponseDto(1L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15), "url", 95.0, 100, "syn", "desc");
+        GameResponseDto responseDto = new GameResponseDto(1L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15), "url", 95.0, 100, "syn", "desc", "engine", new String[]{"Action"}, new String[]{"Bungie"});
         when(gameService.getAllGames()).thenReturn(List.of(responseDto));
 
         mockMvc.perform(get("/api/games"))
@@ -68,7 +68,7 @@ class GameControllerTest {
 
     @Test
     void getGame_GameExists_ReturnsGame() throws Exception {
-        GameResponseDto responseDto = new GameResponseDto(1L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15), "url", 95.0, 100, "syn", "desc");
+        GameResponseDto responseDto = new GameResponseDto(1L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15), "url", 95.0, 100, "syn", "desc", "engine", new String[]{"Action"}, new String[]{"Bungie"});
         when(gameService.getGameById(1L)).thenReturn(responseDto);
 
         mockMvc.perform(get("/api/games/{id}", 1L))
@@ -92,7 +92,7 @@ class GameControllerTest {
     @Test
     void updateGame_ValidRequest_ReturnsOk() throws Exception {
         GameRequestDto requestDto = new GameRequestDto(12345L, "Halo 2", 12.0, 15.0, LocalDate.of(2004, 11, 9),
-                "url", 95.0, 100, "syn", "desc");
+                "url", 95.0, 100, "syn", "desc", "engine", new String[]{"Action"}, new String[]{"Bungie"});
 
         mockMvc.perform(put("/api/games/{id}", 1L)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -105,7 +105,7 @@ class GameControllerTest {
     @Test
     void updateGame_GameDoesNotExist_ReturnsNotFound() throws Exception {
         GameRequestDto requestDto = new GameRequestDto(12345L, "Halo 2", 12.0, 15.0, LocalDate.of(2004, 11, 9),
-                "url", 95.0, 100, "syn", "desc");
+                "url", 95.0, 100, "syn", "desc", "engine", new String[]{"Action"}, new String[]{"Bungie"});
         
         doThrow(new GameNotFoundException()).when(gameService).updateGame(eq(99L), any(GameRequestDto.class));
 

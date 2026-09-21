@@ -43,14 +43,12 @@ class GameServiceTest {
 
     @BeforeEach
     void setUp() {
-        game = new Game(12345L, "Super Mario", 15.0, 20.0,
-                LocalDate.of(1985, 9, 13), "cover_url", 95.0,
-                1000, "synopsis", "desc");
+        game = new Game(123L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13),
+                "cover_url", 95.0, 1000, "synopsis", "desc", "engine", new String[]{"Platformer"}, new String[]{"Nintendo"});
         game.setId(1L);
 
-        requestDto = new GameRequestDto(12345L, "Super Mario", 15.0, 20.0,
-                LocalDate.of(1985, 9, 13), "cover_url", 95.0,
-                1000, "synopsis", "desc");
+        requestDto = new GameRequestDto(123L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13),
+                "cover_url", 95.0, 1000, "synopsis", "desc", "engine", new String[]{"Platformer"}, new String[]{"Nintendo"});
     }
 
     @Test
@@ -69,7 +67,7 @@ class GameServiceTest {
     @Test
     void getAllGames_ReturnsListOfGames() {
         when(gameRepository.findAll()).thenReturn(List.of(game));
-        GameResponseDto responseDto = new GameResponseDto(1L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13), "cover", 95.0, 1000, "synopsis", "desc");
+        GameResponseDto responseDto = new GameResponseDto(1L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13), "cover", 95.0, 1000, "synopsis", "desc", "engine", new String[]{"Platformer"}, new String[]{"Nintendo"});
         when(mapper.toGameResponseDto(game)).thenReturn(responseDto);
 
         List<GameResponseDto> results = gameService.getAllGames();
@@ -83,7 +81,7 @@ class GameServiceTest {
     @Test
     void getGameById_GameExists_ReturnsGame() {
         when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
-        GameResponseDto responseDto = new GameResponseDto(1L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13), "cover", 95.0, 1000, "synopsis", "desc");
+        GameResponseDto responseDto = new GameResponseDto(1L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13), "cover", 95.0, 1000, "synopsis", "desc", "engine", new String[]{"Platformer"}, new String[]{"Nintendo"});
         when(mapper.toGameResponseDto(game)).thenReturn(responseDto);
 
         GameResponseDto result = gameService.getGameById(1L);
@@ -95,18 +93,17 @@ class GameServiceTest {
 
     @Test
     void getGameById_GameDoesNotExist_ThrowsException() {
-        when(gameRepository.findById(2L)).thenReturn(Optional.empty());
+        when(gameRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(GameNotFoundException.class, () -> gameService.getGameById(2L));
-        verify(gameRepository, times(1)).findById(2L);
+        assertThrows(GameNotFoundException.class, () -> gameService.getGameById(99L));
+        verify(gameRepository, times(1)).findById(99L);
     }
 
     @Test
-    void updateGame_GameExists_UpdatesAndSaves() {
+    void updateGame_GameExists_UpdatesAndSavesGame() {
         when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
-        GameRequestDto updateDto = new GameRequestDto(54321L, "Super Mario Bros.", 20.0,
-                25.0, LocalDate.of(1985, 9, 13), "cover", 100.0,
-                2000, "synopsis2", "desc2");
+        GameRequestDto updateDto = new GameRequestDto(123L, "Super Mario Bros.", 20.0, 25.0, LocalDate.of(1985, 9, 13),
+                "new_cover", 96.0, 1500, "new_synopsis", "new_desc", "engine", new String[]{"Platformer"}, new String[]{"Nintendo"});
 
         gameService.updateGame(1L, updateDto);
 
