@@ -3,14 +3,13 @@ package dev.abdulrahman.excelsior.mapper;
 import dev.abdulrahman.excelsior.business.game.Game;
 import dev.abdulrahman.excelsior.business.game.GameRequestDto;
 import dev.abdulrahman.excelsior.business.game.GameResponseDto;
-import dev.abdulrahman.excelsior.integration.dto.EngineDto;
-import dev.abdulrahman.excelsior.integration.dto.GameDto;
-import dev.abdulrahman.excelsior.integration.dto.TimeToBeatDto;
+import dev.abdulrahman.excelsior.integration.dto.*;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Arrays;
 
 @Component
 public class DtoMapper {
@@ -33,6 +32,10 @@ public class DtoMapper {
             primaryEngine = engines[0].name();
         }
 
+        String[] genres = Arrays.stream(gameDto.genres())
+                .map(GenreDto::name)
+                .toArray(String[]::new);
+
         return new GameRequestDto(
                 Long.valueOf(gameDto.id()),
                 gameDto.name(),
@@ -44,7 +47,8 @@ public class DtoMapper {
                 gameDto.ratingCount(),
                 gameDto.storyline(),
                 gameDto.summary(),
-                primaryEngine
+                primaryEngine,
+                genres
         );
     }
 
@@ -60,7 +64,8 @@ public class DtoMapper {
                 dto.ratingCount(),
                 dto.synopsis(),
                 dto.description(),
-                dto.primaryEngine()
+                dto.primaryEngine(),
+                dto.genres()
         );
     }
 
@@ -76,7 +81,8 @@ public class DtoMapper {
                 game.getRatingCount(),
                 game.getSynopsis(),
                 game.getDescription(),
-                game.getPrimaryEngine()
+                game.getPrimaryEngine(),
+                game.getGenres()
         );
     }
 

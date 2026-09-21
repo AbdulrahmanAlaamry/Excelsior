@@ -22,7 +22,8 @@ public record GameRequestDto(
         @JsonProperty("rating_count") Integer ratingCount,
         String synopsis,
         String description,
-        @JsonProperty("primary_engine") String primaryEngine
+        @JsonProperty("primary_engine") String primaryEngine,
+        String[] genres
 ) {
     @Override
     public String toString() {
