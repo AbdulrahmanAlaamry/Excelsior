@@ -13,5 +13,6 @@ public record GameDto(
         @JsonProperty("total_rating") Double rating,
         @JsonProperty("total_rating_count") Integer ratingCount,
         @JsonProperty("game_engines") EngineDto[] engines,
-        GenreDto[] genres
+        GenreDto[] genres,
+        @JsonProperty("involved_companies") InvolvedCompanyDto[] involvedCompanies
 ) {}

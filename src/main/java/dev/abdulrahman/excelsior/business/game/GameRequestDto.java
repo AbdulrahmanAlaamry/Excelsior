@@ -23,7 +23,8 @@ public record GameRequestDto(
         String synopsis,
         String description,
         @JsonProperty("primary_engine") String primaryEngine,
-        String[] genres
+        String[] genres,
+        String[] companies
 ) {
     @Override
     public String toString() {

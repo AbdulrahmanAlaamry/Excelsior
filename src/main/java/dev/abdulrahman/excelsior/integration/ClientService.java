@@ -37,7 +37,8 @@ public class ClientService {
         GameDto[] gameResponse = initiateRequest(
                 "/games",
                 "fields id, cover.url, cover.width, cover.height, first_release_date, name, slug, storyline, "
-                        + "summary, total_rating, total_rating_count, game_engines.name, genres.name; " +
+                        + "summary, total_rating, total_rating_count, game_engines.name, genres.name, " +
+                        "involved_companies.company.name; " +
                         "search \"" + query + "\";" +
                         "where game_type = (0, 8, 9) & version_parent = null;",
                 GameDto[].class

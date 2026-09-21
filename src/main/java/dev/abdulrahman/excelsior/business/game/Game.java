@@ -24,6 +24,7 @@ public class Game {
     @Column(length = 5000) private String description;
     private String primaryEngine;
     private String[] genres;
+    private String[] companies;
 
     protected Game() {}
 
@@ -38,7 +39,8 @@ public class Game {
                 String synopsis,
                 String description,
                 String primaryEngine,
-                String[] genres
+                String[] genres,
+                String[] companies
     ) {
         setIgdbId(igdbId);
         setName(name);
@@ -52,6 +54,7 @@ public class Game {
         setDescription(description);
         setPrimaryEngine(primaryEngine);
         setGenres(genres);
+        setCompanies(companies);
     }
 
     public Long getId() {
@@ -158,6 +161,14 @@ public class Game {
         this.genres = genres;
     }
 
+    public String[] getCompanies() {
+        return companies;
+    }
+
+    public void setCompanies(String[] companies) {
+        this.companies = companies;
+    }
+
     public void setAll(GameRequestDto dto) {
         setIgdbId(dto.igdbId());
         setName(dto.name());
@@ -171,6 +182,7 @@ public class Game {
         setDescription(dto.description());
         setPrimaryEngine(dto.primaryEngine());
         setGenres(dto.genres());
+        setCompanies(dto.companies());
     }
 
     @Override

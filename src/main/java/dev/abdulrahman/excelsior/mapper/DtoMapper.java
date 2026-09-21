@@ -10,6 +10,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.function.Function;
+import java.util.function.IntFunction;
 
 @Component
 public class DtoMapper {
@@ -32,9 +34,10 @@ public class DtoMapper {
             primaryEngine = engines[0].name();
         }
 
-        String[] genres = gameDto.genres() != null
-                ? Arrays.stream(gameDto.genres()).map(GenreDto::name).toArray(String[]::new)
-                : new String[0];
+        String[] genres = parseArray(gameDto.genres(), GenreDto::name, String[]::new);
+
+        CompanyDto[] companyDtos = parseArray(gameDto.involvedCompanies(), InvolvedCompanyDto::company, CompanyDto[]::new);
+        String[] companies = parseArray(companyDtos, CompanyDto::name, String[]::new);
 
         return new GameRequestDto(
                 Long.valueOf(gameDto.id()),
@@ -48,7 +51,8 @@ public class DtoMapper {
                 gameDto.storyline(),
                 gameDto.summary(),
                 primaryEngine,
-                genres
+                genres,
+                companies
         );
     }
 
@@ -65,7 +69,8 @@ public class DtoMapper {
                 dto.synopsis(),
                 dto.description(),
                 dto.primaryEngine(),
-                dto.genres()
+                dto.genres(),
+                dto.companies()
         );
     }
 
@@ -82,7 +87,8 @@ public class DtoMapper {
                 game.getSynopsis(),
                 game.getDescription(),
                 game.getPrimaryEngine(),
-                game.getGenres()
+                game.getGenres(),
+                game.getCompanies()
         );
     }
 
@@ -92,5 +98,11 @@ public class DtoMapper {
 
     private Double round(Double d) {
         return d != null ? Math.round(d * 10.0) / 10.0 : null;
+    }
+
+    public <T, U> T[] parseArray(U[] arr, Function<U, T> mapper, IntFunction<T[]> arrayGenerator) {
+        return arr != null
+                ? Arrays.stream(arr).map(mapper).toArray(arrayGenerator)
+                : arrayGenerator.apply(0);
     }
 }
