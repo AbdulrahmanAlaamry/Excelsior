@@ -32,9 +32,9 @@ public class DtoMapper {
             primaryEngine = engines[0].name();
         }
 
-        String[] genres = Arrays.stream(gameDto.genres())
-                .map(GenreDto::name)
-                .toArray(String[]::new);
+        String[] genres = gameDto.genres() != null
+                ? Arrays.stream(gameDto.genres()).map(GenreDto::name).toArray(String[]::new)
+                : new String[0];
 
         return new GameRequestDto(
                 Long.valueOf(gameDto.id()),
