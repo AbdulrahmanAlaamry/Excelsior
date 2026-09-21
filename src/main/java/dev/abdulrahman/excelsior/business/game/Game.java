@@ -29,6 +29,8 @@ public class Game {
     private List<String> genres;
     @ElementCollection
     private List<String> companies;
+    @Enumerated(EnumType.STRING)
+    private GameTier tier;
 
     protected Game() {}
 
@@ -44,7 +46,8 @@ public class Game {
                 String description,
                 String primaryEngine,
                 List<String> genres,
-                List<String> companies
+                List<String> companies,
+                GameTier tier
     ) {
         setIgdbId(igdbId);
         setName(name);
@@ -59,6 +62,7 @@ public class Game {
         setPrimaryEngine(primaryEngine);
         setGenres(genres);
         setCompanies(companies);
+        setTier(tier);
     }
 
     public Long getId() {
@@ -173,6 +177,14 @@ public class Game {
         this.companies = companies;
     }
 
+    public GameTier getTier() {
+        return tier;
+    }
+
+    public void setTier(GameTier tier) {
+        this.tier = tier;
+    }
+
     public void setAll(GameRequestDto dto) {
         setIgdbId(dto.igdbId());
         setName(dto.name());
@@ -187,6 +199,7 @@ public class Game {
         setPrimaryEngine(dto.primaryEngine());
         setGenres(dto.genres());
         setCompanies(dto.companies());
+        setTier(dto.tier());
     }
 
     @Override

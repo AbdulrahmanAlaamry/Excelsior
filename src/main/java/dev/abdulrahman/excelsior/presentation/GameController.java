@@ -4,12 +4,14 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import dev.abdulrahman.excelsior.business.GameService;
 import dev.abdulrahman.excelsior.business.game.GameRequestDto;
 import dev.abdulrahman.excelsior.business.game.GameResponseDto;
+import dev.abdulrahman.excelsior.business.game.GameTier;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/games")
@@ -20,10 +22,15 @@ public class GameController {
         this.service = service;
     }
 
-    @PostMapping("/search")
+    @PostMapping("/add")
     @ResponseStatus(HttpStatus.CREATED)
     public void searchAndAddGame(@RequestParam String query) {
         this.service.searchAndAddGame(query);
+    }
+
+    @GetMapping("/search")
+    public GameRequestDto searchGame(@RequestParam String query) {
+        return this.service.searchGame(query);
     }
 
     @PostMapping
@@ -47,7 +54,6 @@ public class GameController {
             Sort sort
             ) {
 
-        // Let the database handle all the filtering logic dynamically!
         return this.service.findGamesDynamically(
                 minRating, maxRating, nameContains, genreContains,
                 minLengthNormal, maxLengthNormal, minLengthComplete, maxLengthComplete,
@@ -63,6 +69,11 @@ public class GameController {
     @PutMapping("/{id}")
     public void updateGame(@PathVariable Long id, @RequestBody GameRequestDto dto) {
         this.service.updateGame(id, dto);
+    }
+
+    @PatchMapping("/{id}")
+    public void updateTier(@PathVariable Long id, @RequestBody Map<String, GameTier> update) {
+        this.service.updateTier(id, update.get("tier"));
     }
 
     @DeleteMapping("/{id}")

@@ -57,7 +57,8 @@ public class DtoMapper {
                 gameDto.summary(),
                 primaryEngine,
                 genres,
-                companies
+                companies,
+                null
         );
     }
 
@@ -75,7 +76,8 @@ public class DtoMapper {
                 dto.description(),
                 dto.primaryEngine(),
                 dto.genres(),
-                dto.companies()
+                dto.companies(),
+                dto.tier()
         );
     }
 
@@ -93,7 +95,8 @@ public class DtoMapper {
                 game.getDescription(),
                 game.getPrimaryEngine(),
                 game.getGenres(),
-                game.getCompanies()
+                game.getCompanies(),
+                game.getTier()
         );
     }
 

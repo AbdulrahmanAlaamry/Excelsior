@@ -24,7 +24,11 @@ public class GameService {
     }
 
     public void searchAndAddGame(String query) {
-        addGame(clientService.searchGames(query));
+        addGame(searchGame(query));
+    }
+
+    public GameRequestDto searchGame(String query) {
+        return clientService.searchGames(query);
     }
 
     public void addGame(GameRequestDto dto) {
@@ -49,6 +53,12 @@ public class GameService {
         repo.save(game);
     }
 
+    public void updateTier(Long id, GameTier tier) {
+        Game game = findGameById(id);
+        game.setTier(tier);
+        repo.save(game);
+    }
+
     public void deleteGame(Long id) {
         repo.delete(findGameById(id));
     }
@@ -65,34 +75,6 @@ public class GameService {
                         minDate, maxDate, sort
                 )
         );
-    }
-
-    public List<GameResponseDto> getAllSortedByName() {
-        return mapper.toGameResponseDtoList(repo.findAllByOrderByNameAsc());
-    }
-
-    public List<GameResponseDto> getAllSortedByRating() {
-        return mapper.toGameResponseDtoList(repo.findAllByOrderByRatingDesc());
-    }
-
-    public List<GameResponseDto> getAllSortedByNewest() {
-        return mapper.toGameResponseDtoList(repo.findAllByOrderByReleaseDateDesc());
-    }
-
-    public List<GameResponseDto> getAllSortedByOldest() {
-        return mapper.toGameResponseDtoList(repo.findAllByOrderByReleaseDateAsc());
-    }
-
-    public List<GameResponseDto> getAllSortedByLength() {
-        return mapper.toGameResponseDtoList(repo.findAllByOrderByLengthCompleteDesc());
-    }
-
-    public List<GameResponseDto> getTop10HighestRated() {
-        return mapper.toGameResponseDtoList(repo.findTop10ByOrderByRatingDesc());
-    }
-
-    public Page<GameResponseDto> getByLengthNormalLessThanEqualPaged(Double hours, Pageable pageable) {
-        return repo.findByLengthNormalLessThanEqual(hours, pageable).map(mapper::toGameResponseDto);
     }
 
     private Game findGameById(Long id) {
