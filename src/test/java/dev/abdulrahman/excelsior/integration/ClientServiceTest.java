@@ -15,6 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import dev.abdulrahman.excelsior.business.game.GameTier;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
@@ -92,7 +94,7 @@ class ClientServiceTest {
 
         GameRequestDto expectedDto = new GameRequestDto(12345L, "Awesome Game", 10.0, 20.0,
                 LocalDate.of(2023, 10, 15), "http://example.com/cover.jpg",
-                85.5, 120, "A great storyline", "A short summary", "engine", List.of("Action"), List.of("Sony"));
+                85.5, 120, "A great storyline", "A short summary", "engine", List.of("Action"), List.of("Sony"), GameTier.S);
         when(mapper.toGameRequestDto(any(GameDto.class), any(TimeToBeatDto.class))).thenReturn(expectedDto);
 
         GameRequestDto result = clientService.searchGames(searchQuery);

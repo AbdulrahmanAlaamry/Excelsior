@@ -15,9 +15,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // Apply the rate limiter ONLY to the IGDB search endpoint
+        // Apply the rate limiter to ANY endpoint that calls the external IGDB API
         registry.addInterceptor(rateLimitInterceptor)
-                .addPathPatterns("/api/games/search");
+                .addPathPatterns("/api/games/search", "/api/games/add");
     }
 
     @Override

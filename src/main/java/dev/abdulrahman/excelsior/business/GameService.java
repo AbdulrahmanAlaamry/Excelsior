@@ -38,11 +38,6 @@ public class GameService {
         repo.save(mapper.toGameEntity(dto));
     }
 
-    @Deprecated(forRemoval = true)
-    public List<GameResponseDto> getAllGames() {
-        return mapper.toGameResponseDtoList(repo.findAll());
-    }
-
     public GameResponseDto getGameById(Long id) {
         return mapper.toGameResponseDto(findGameById(id));
     }
