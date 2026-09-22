@@ -42,6 +42,10 @@ public class DtoMapper {
         CompanyDto[] companyDtos = parseArrayToArray(gameDto.involvedCompanies(), InvolvedCompanyDto::company, CompanyDto[]::new);
         List<String> companies = parseArrayToList(companyDtos, CompanyDto::name);
 
+        List<String> artworkUrls = parseArrayToList(gameDto.artworks(), ImageDto::url);
+        List<String> screenshotUrls = parseArrayToList(gameDto.screenshots(), ImageDto::url);
+        List<String> platforms = parseArrayToList(gameDto.platforms(), PlatformDto::name);
+
         return new GameRequestDto(
                 Long.valueOf(gameDto.id()),
                 gameDto.name(),
@@ -57,7 +61,10 @@ public class DtoMapper {
                 genres,
                 companies,
                 GameTier.NONE,
-                GameStatus.UNKNOWN
+                GameStatus.UNKNOWN,
+                artworkUrls,
+                screenshotUrls,
+                platforms
         );
     }
 
@@ -77,7 +84,10 @@ public class DtoMapper {
                 dto.genres(),
                 dto.companies(),
                 dto.tier(),
-                dto.status()
+                dto.status(),
+                dto.artworkUrls(),
+                dto.screenshotUrls(),
+                dto.platforms()
         );
     }
 
@@ -97,7 +107,10 @@ public class DtoMapper {
                 game.getGenres(),
                 game.getCompanies(),
                 game.getTier(),
-                game.getStatus()
+                game.getStatus(),
+                game.getArtworkUrls(),
+                game.getScreenshotUrls(),
+                game.getPlatforms()
         );
     }
 

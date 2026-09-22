@@ -1,7 +1,7 @@
 package dev.abdulrahman.excelsior.integration;
 
 import dev.abdulrahman.excelsior.business.game.GameRequestDto;
-import dev.abdulrahman.excelsior.integration.dto.CoverDto;
+import dev.abdulrahman.excelsior.integration.dto.ImageDto;
 import dev.abdulrahman.excelsior.integration.dto.GameDto;
 import dev.abdulrahman.excelsior.integration.dto.TimeToBeatDto;
 import dev.abdulrahman.excelsior.mapper.DtoMapper;
@@ -28,7 +28,7 @@ class DtoMapperTest {
 
     @Test
     void toGameRequestDto_AllFieldsPresent_MapsCorrectly() {
-        CoverDto cover = new CoverDto("http://example.com/cover.jpg", 100, 200);
+        ImageDto cover = new ImageDto("http://example.com/cover.jpg", 100, 200);
         Long releaseDateEpoch = Instant.parse("2023-10-15T00:00:00Z").getEpochSecond();
         EngineDto[] engines = new EngineDto[]{new EngineDto("Unreal Engine 5")};
         GenreDto[] genres = new GenreDto[]{new GenreDto("Action"), new GenreDto("Adventure")};
@@ -62,7 +62,7 @@ class DtoMapperTest {
 
     @Test
     void toGameRequestDto_NullFields_MapsSafely() {
-        GameDto gameDto = new GameDto(1, new CoverDto(null, null, null), null, null, null, null, null, null, null, null, null, null);
+        GameDto gameDto = new GameDto(1, new ImageDto(null, null, null), null, null, null, null, null, null, null, null, null, null);
         TimeToBeatDto timeToBeatDto = new TimeToBeatDto(null, null);
 
         GameRequestDto result = mapper.toGameRequestDto(gameDto, timeToBeatDto);

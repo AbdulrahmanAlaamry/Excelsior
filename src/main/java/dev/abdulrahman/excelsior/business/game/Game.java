@@ -30,6 +30,9 @@ public class Game {
     @ElementCollection private List<String> companies;
     @Enumerated(EnumType.STRING) private GameTier tier;
     @Enumerated(EnumType.STRING) private GameStatus status;
+    @ElementCollection private List<String> artworkUrls;
+    @ElementCollection private List<String> screenshotUrls;
+    @ElementCollection private List<String> platforms;
 
     protected Game() {}
 
@@ -47,7 +50,10 @@ public class Game {
                 List<String> genres,
                 List<String> companies,
                 GameTier tier,
-                GameStatus status
+                GameStatus status,
+                List<String> artworkUrls,
+                List<String> screenshotUrls,
+                List<String> platforms
     ) {
         setIgdbId(igdbId);
         setName(name);
@@ -64,6 +70,9 @@ public class Game {
         setCompanies(companies);
         setTier(tier);
         setStatus(status);
+        setArtworkUrls(artworkUrls);
+        setScreenshotUrls(screenshotUrls);
+        setPlatforms(platforms);
     }
 
     public Long getId() {
@@ -194,6 +203,30 @@ public class Game {
         this.status = status;
     }
 
+    public List<String> getArtworkUrls() {
+        return artworkUrls;
+    }
+
+    public void setArtworkUrls(List<String> artworkUrls) {
+        this.artworkUrls = artworkUrls;
+    }
+
+    public List<String> getScreenshotUrls() {
+        return screenshotUrls;
+    }
+
+    public void setScreenshotUrls(List<String> screenshotUrls) {
+        this.screenshotUrls = screenshotUrls;
+    }
+
+    public List<String> getPlatforms() {
+        return platforms;
+    }
+
+    public void setPlatforms(List<String> platforms) {
+        this.platforms = platforms;
+    }
+
     public void setAll(GameRequestDto dto) {
         setIgdbId(dto.igdbId());
         setName(dto.name());
@@ -210,6 +243,9 @@ public class Game {
         setCompanies(dto.companies());
         setTier(dto.tier());
         setStatus(dto.status());
+        setArtworkUrls(dto.artworkUrls());
+        setScreenshotUrls(dto.screenshotUrls());
+        setPlatforms(dto.platforms());
     }
 
     @Override

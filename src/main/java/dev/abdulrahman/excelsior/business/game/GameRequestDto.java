@@ -27,7 +27,10 @@ public record GameRequestDto(
         List<String> genres,
         List<String> companies,
         GameTier tier,
-        GameStatus status
+        GameStatus status,
+        List<String> artworkUrls,
+        List<String> screenshotUrls,
+        List<String> platforms
 ) {
     @Override
     public String toString() {

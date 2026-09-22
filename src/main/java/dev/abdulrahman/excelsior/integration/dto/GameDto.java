@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record GameDto(
         Integer id,
-        CoverDto cover,
+        ImageDto cover,
         @JsonProperty("first_release_date") Long releaseDate,
         String name,
         String slug,
@@ -14,5 +14,8 @@ public record GameDto(
         @JsonProperty("total_rating_count") Integer ratingCount,
         @JsonProperty("game_engines") EngineDto[] engines,
         GenreDto[] genres,
-        @JsonProperty("involved_companies") InvolvedCompanyDto[] involvedCompanies
+        @JsonProperty("involved_companies") InvolvedCompanyDto[] involvedCompanies,
+        ImageDto[] artworks,
+        ImageDto[] screenshots,
+        PlatformDto[] platforms
 ) {}
