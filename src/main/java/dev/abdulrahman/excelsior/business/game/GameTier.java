@@ -5,5 +5,6 @@ public enum GameTier {
     A,
     B,
     C,
-    D
+    D,
+    NONE
 }

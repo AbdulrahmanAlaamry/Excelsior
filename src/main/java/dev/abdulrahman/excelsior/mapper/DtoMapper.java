@@ -1,8 +1,6 @@
 package dev.abdulrahman.excelsior.mapper;
 
-import dev.abdulrahman.excelsior.business.game.Game;
-import dev.abdulrahman.excelsior.business.game.GameRequestDto;
-import dev.abdulrahman.excelsior.business.game.GameResponseDto;
+import dev.abdulrahman.excelsior.business.game.*;
 import dev.abdulrahman.excelsior.integration.dto.*;
 import org.springframework.stereotype.Component;
 
@@ -58,7 +56,8 @@ public class DtoMapper {
                 primaryEngine,
                 genres,
                 companies,
-                null
+                GameTier.NONE,
+                GameStatus.UNKNOWN
         );
     }
 
@@ -77,7 +76,8 @@ public class DtoMapper {
                 dto.primaryEngine(),
                 dto.genres(),
                 dto.companies(),
-                dto.tier()
+                dto.tier(),
+                dto.status()
         );
     }
 
@@ -96,7 +96,8 @@ public class DtoMapper {
                 game.getPrimaryEngine(),
                 game.getGenres(),
                 game.getCompanies(),
-                game.getTier()
+                game.getTier(),
+                game.getStatus()
         );
     }
 

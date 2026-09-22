@@ -14,6 +14,7 @@ public class Game {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private Long igdbId;
     private String name;
     private Double lengthNormal;
@@ -25,12 +26,10 @@ public class Game {
     @Column(length = 5000) private String synopsis;
     @Column(length = 5000) private String description;
     private String primaryEngine;
-    @ElementCollection
-    private List<String> genres;
-    @ElementCollection
-    private List<String> companies;
-    @Enumerated(EnumType.STRING)
-    private GameTier tier;
+    @ElementCollection private List<String> genres;
+    @ElementCollection private List<String> companies;
+    @Enumerated(EnumType.STRING) private GameTier tier;
+    @Enumerated(EnumType.STRING) private GameStatus status;
 
     protected Game() {}
 
@@ -47,7 +46,8 @@ public class Game {
                 String primaryEngine,
                 List<String> genres,
                 List<String> companies,
-                GameTier tier
+                GameTier tier,
+                GameStatus status
     ) {
         setIgdbId(igdbId);
         setName(name);
@@ -63,6 +63,7 @@ public class Game {
         setGenres(genres);
         setCompanies(companies);
         setTier(tier);
+        setStatus(status);
     }
 
     public Long getId() {
@@ -185,6 +186,14 @@ public class Game {
         this.tier = tier;
     }
 
+    public GameStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(GameStatus status) {
+        this.status = status;
+    }
+
     public void setAll(GameRequestDto dto) {
         setIgdbId(dto.igdbId());
         setName(dto.name());
@@ -200,6 +209,7 @@ public class Game {
         setGenres(dto.genres());
         setCompanies(dto.companies());
         setTier(dto.tier());
+        setStatus(dto.status());
     }
 
     @Override

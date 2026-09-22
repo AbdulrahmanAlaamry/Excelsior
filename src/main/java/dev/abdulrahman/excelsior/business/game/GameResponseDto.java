@@ -26,7 +26,8 @@ public record GameResponseDto(
         @JsonProperty("primary_engine") String primaryEngine,
         List<String> genres,
         List<String> companies,
-        GameTier tier
+        GameTier tier,
+        GameStatus status
 ) {
     @Override
     public String toString() {
@@ -40,6 +41,7 @@ public record GameResponseDto(
                 "\nSynopsis: " + synopsis +
                 "\nDescription: " + description +
                 "\nPrimary Engine: " + primaryEngine +
-                "\nTier: " + tier;
+                "\nTier: " + tier +
+                "\nStatus: " + status;
     }
 }

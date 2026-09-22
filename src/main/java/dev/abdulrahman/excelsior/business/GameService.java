@@ -4,12 +4,11 @@ import dev.abdulrahman.excelsior.business.game.*;
 import dev.abdulrahman.excelsior.integration.ClientService;
 import dev.abdulrahman.excelsior.mapper.DtoMapper;
 import dev.abdulrahman.excelsior.persistence.GameRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 @Service
 public class GameService {
@@ -49,9 +48,11 @@ public class GameService {
     }
 
     public void updateTier(Long id, GameTier tier) {
-        Game game = findGameById(id);
-        game.setTier(tier);
-        repo.save(game);
+        updateField(id, Game::setTier, tier);
+    }
+
+    public void updateStatus(Long id, GameStatus status) {
+        updateField(id, Game::setStatus, status);
     }
 
     public void deleteGame(Long id) {
@@ -74,5 +75,11 @@ public class GameService {
 
     private Game findGameById(Long id) {
         return repo.findById(id).orElseThrow(GameNotFoundException::new);
+    }
+
+    private <T> void updateField(Long id, BiConsumer<Game, T> mutator, T field) {
+        Game game = findGameById(id);
+        mutator.accept(game, field);
+        repo.save(game);
     }
 }

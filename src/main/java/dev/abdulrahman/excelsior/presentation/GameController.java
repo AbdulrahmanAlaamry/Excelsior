@@ -2,16 +2,13 @@ package dev.abdulrahman.excelsior.presentation;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import dev.abdulrahman.excelsior.business.GameService;
-import dev.abdulrahman.excelsior.business.game.GameRequestDto;
-import dev.abdulrahman.excelsior.business.game.GameResponseDto;
-import dev.abdulrahman.excelsior.business.game.GameTier;
+import dev.abdulrahman.excelsior.business.game.*;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/games")
@@ -72,8 +69,14 @@ public class GameController {
     }
 
     @PatchMapping("/{id}")
-    public void updateTier(@PathVariable Long id, @RequestBody Map<String, GameTier> update) {
-        this.service.updateTier(id, update.get("tier"));
+    public void updateTier(@PathVariable Long id, @RequestBody GamePatchDto dto) {
+        if (dto.tier() != null) {
+            this.service.updateTier(id, dto.tier());
+        }
+
+        if (dto.status() != null) {
+            this.service.updateStatus(id, dto.status());
+        }
     }
 
     @DeleteMapping("/{id}")
