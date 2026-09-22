@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import dev.abdulrahman.excelsior.business.game.GameTier;
+import dev.abdulrahman.excelsior.business.game.GameStatus;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -46,11 +47,11 @@ class GameServiceTest {
     @BeforeEach
     void setUp() {
         game = new Game(123L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13),
-                "cover_url", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S);
+                "cover_url", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
         game.setId(1L);
 
         requestDto = new GameRequestDto(123L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13),
-                "cover_url", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S);
+                "cover_url", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
     }
 
     @Test
@@ -69,7 +70,7 @@ class GameServiceTest {
     @Test
     void findGamesDynamically_ReturnsListOfGames() {
         when(gameRepository.findDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(List.of(game));
-        GameResponseDto responseDto = new GameResponseDto(1L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13), "cover", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S);
+        GameResponseDto responseDto = new GameResponseDto(1L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13), "cover", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
         when(mapper.toGameResponseDtoList(anyList())).thenReturn(List.of(responseDto));
 
         List<GameResponseDto> results = gameService.findGamesDynamically(
@@ -84,7 +85,7 @@ class GameServiceTest {
     @Test
     void getGameById_GameExists_ReturnsGame() {
         when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
-        GameResponseDto responseDto = new GameResponseDto(1L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13), "cover", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S);
+        GameResponseDto responseDto = new GameResponseDto(1L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13), "cover", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
         when(mapper.toGameResponseDto(game)).thenReturn(responseDto);
 
         GameResponseDto result = gameService.getGameById(1L);
@@ -106,7 +107,7 @@ class GameServiceTest {
     void updateGame_GameExists_UpdatesAndSavesGame() {
         when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
         GameRequestDto updateDto = new GameRequestDto(123L, "Super Mario Bros.", 20.0, 25.0, LocalDate.of(1985, 9, 13),
-                "new_cover", 96.0, 1500, "new_synopsis", "new_desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S);
+                "new_cover", 96.0, 1500, "new_synopsis", "new_desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
 
         gameService.updateGame(1L, updateDto);
 

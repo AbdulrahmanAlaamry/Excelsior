@@ -16,6 +16,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import dev.abdulrahman.excelsior.integration.dto.*;
 import java.util.List;
+import dev.abdulrahman.excelsior.business.game.GameTier;
+import dev.abdulrahman.excelsior.business.game.GameStatus;
 
 class DtoMapperTest {
 
@@ -37,8 +39,12 @@ class DtoMapperTest {
                 new InvolvedCompanyDto(new CompanyDto("Sony Interactive Entertainment"))
         };
 
+        ImageDto[] artworks = new ImageDto[]{new ImageDto("http://example.com/art.jpg", 1, 1)};
+        ImageDto[] screenshots = new ImageDto[]{new ImageDto("http://example.com/scr.jpg", 1, 1)};
+        PlatformDto[] platforms = new PlatformDto[]{new PlatformDto("PC")};
+
         GameDto gameDto = new GameDto(1, cover, releaseDateEpoch, "Awesome Game", "awesome-game",
-                "A great storyline", "A short summary", 85.5, 120, engines, genres, companies);
+                "A great storyline", "A short summary", 85.5, 120, engines, genres, companies, artworks, screenshots, platforms);
 
         // normally = 36000 seconds (10 hours), completely = 72000 seconds (20 hours)
         TimeToBeatDto timeToBeatDto = new TimeToBeatDto(72000, 36000);
@@ -58,11 +64,14 @@ class DtoMapperTest {
         assertEquals("Unreal Engine 5", result.primaryEngine());
         assertEquals(List.of("Action", "Adventure"), result.genres());
         assertEquals(List.of("Santa Monica Studio", "Sony Interactive Entertainment"), result.companies());
+        assertEquals(List.of("http://example.com/art.jpg"), result.artworkUrls());
+        assertEquals(List.of("http://example.com/scr.jpg"), result.screenshotUrls());
+        assertEquals(List.of("PC"), result.platforms());
     }
 
     @Test
     void toGameRequestDto_NullFields_MapsSafely() {
-        GameDto gameDto = new GameDto(1, new ImageDto(null, null, null), null, null, null, null, null, null, null, null, null, null);
+        GameDto gameDto = new GameDto(1, new ImageDto(null, null, null), null, null, null, null, null, null, null, null, null, null, null, null, null);
         TimeToBeatDto timeToBeatDto = new TimeToBeatDto(null, null);
 
         GameRequestDto result = mapper.toGameRequestDto(gameDto, timeToBeatDto);
@@ -80,5 +89,10 @@ class DtoMapperTest {
         assertEquals("Unknown/Proprietary", result.primaryEngine());
         assertEquals(List.of(), result.genres());
         assertEquals(List.of(), result.companies());
+        assertEquals(List.of(), result.artworkUrls());
+        assertEquals(List.of(), result.screenshotUrls());
+        assertEquals(List.of(), result.platforms());
+        assertEquals(GameTier.NONE, result.tier());
+        assertEquals(GameStatus.UNKNOWN, result.status());
     }
 }

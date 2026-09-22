@@ -26,6 +26,7 @@ import dev.abdulrahman.excelsior.presentation.config.WebConfig;
 import dev.abdulrahman.excelsior.presentation.config.RateLimitInterceptor;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dev.abdulrahman.excelsior.business.game.GameTier;
+import dev.abdulrahman.excelsior.business.game.GameStatus;
 
 @WebMvcTest(GameController.class)
 @Import({WebConfig.class, RateLimitInterceptor.class})
@@ -42,7 +43,7 @@ class GameControllerTest {
     @Test
     void addGame_ValidRequest_ReturnsCreated() throws Exception {
         GameRequestDto requestDto = new GameRequestDto(12345L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15),
-                "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S);
+                "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
 
         mockMvc.perform(post("/api/games")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -54,7 +55,7 @@ class GameControllerTest {
 
     @Test
     void getAllGames_ReturnsGameList() throws Exception {
-        GameResponseDto responseDto = new GameResponseDto(1L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S);
+        GameResponseDto responseDto = new GameResponseDto(1L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
         when(gameService.findGamesDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(List.of(responseDto));
 
         mockMvc.perform(get("/api/games"))
@@ -69,7 +70,7 @@ class GameControllerTest {
 
     @Test
     void getGame_GameExists_ReturnsGame() throws Exception {
-        GameResponseDto responseDto = new GameResponseDto(1L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S);
+        GameResponseDto responseDto = new GameResponseDto(1L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
         when(gameService.getGameById(1L)).thenReturn(responseDto);
 
         mockMvc.perform(get("/api/games/{id}", 1L))
@@ -93,7 +94,7 @@ class GameControllerTest {
     @Test
     void updateGame_ValidRequest_ReturnsOk() throws Exception {
         GameRequestDto requestDto = new GameRequestDto(12345L, "Halo 2", 12.0, 15.0, LocalDate.of(2004, 11, 9),
-                "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S);
+                "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
 
         mockMvc.perform(put("/api/games/{id}", 1L)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -106,7 +107,7 @@ class GameControllerTest {
     @Test
     void updateGame_GameDoesNotExist_ReturnsNotFound() throws Exception {
         GameRequestDto requestDto = new GameRequestDto(12345L, "Halo 2", 12.0, 15.0, LocalDate.of(2004, 11, 9),
-                "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S);
+                "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
         
         doThrow(new GameNotFoundException()).when(gameService).updateGame(eq(99L), any(GameRequestDto.class));
 
@@ -148,7 +149,7 @@ class GameControllerTest {
 
     @Test
     void searchGame_ValidRequest_ReturnsGameRequestDto() throws Exception {
-        GameRequestDto responseDto = new GameRequestDto(12345L, "God of War", 10.0, 15.0, LocalDate.of(2005, 3, 22), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Santa Monica"), GameTier.S);
+        GameRequestDto responseDto = new GameRequestDto(12345L, "God of War", 10.0, 15.0, LocalDate.of(2005, 3, 22), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Santa Monica"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
         when(gameService.searchGame("God of War")).thenReturn(responseDto);
 
         mockMvc.perform(get("/api/games/search")
