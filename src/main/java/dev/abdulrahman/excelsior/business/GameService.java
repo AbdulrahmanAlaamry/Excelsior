@@ -4,6 +4,8 @@ import dev.abdulrahman.excelsior.business.game.*;
 import dev.abdulrahman.excelsior.integration.ClientService;
 import dev.abdulrahman.excelsior.mapper.DtoMapper;
 import dev.abdulrahman.excelsior.persistence.GameRepository;
+import dev.abdulrahman.excelsior.presentation.exception.GameAlreadyExistsException;
+import dev.abdulrahman.excelsior.presentation.exception.GameNotFoundException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +35,8 @@ public class GameService {
 
     public void addGame(GameRequestDto dto) {
         if (repo.existsByIgdbId(dto.igdbId())) {
-            throw new GameAlreadyExistsException();
+            throw new GameAlreadyExistsException("Game with IGDB ID '" + dto.igdbId() +
+                    "' (" + dto.name() + ") already exists");
         }
         repo.save(mapper.toGameEntity(dto));
     }
@@ -75,7 +78,8 @@ public class GameService {
     }
 
     private Game findGameById(Long id) {
-        return repo.findById(id).orElseThrow(GameNotFoundException::new);
+        return repo.findById(id)
+                .orElseThrow(() -> new GameNotFoundException("Could not find a game with ID '" + id + "'"));
     }
 
     private <T> void updateField(Long id, BiConsumer<Game, T> mutator, T field) {

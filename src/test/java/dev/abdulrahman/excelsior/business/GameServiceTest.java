@@ -1,7 +1,7 @@
 package dev.abdulrahman.excelsior.business;
 
 import dev.abdulrahman.excelsior.business.game.Game;
-import dev.abdulrahman.excelsior.business.game.GameNotFoundException;
+import dev.abdulrahman.excelsior.presentation.exception.GameNotFoundException;
 import dev.abdulrahman.excelsior.business.game.GameRequestDto;
 import dev.abdulrahman.excelsior.business.game.GameResponseDto;
 import dev.abdulrahman.excelsior.persistence.GameRepository;
@@ -69,17 +69,17 @@ class GameServiceTest {
 
     @Test
     void findGamesDynamically_ReturnsListOfGames() {
-        when(gameRepository.findDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(List.of(game));
+        when(gameRepository.findDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(List.of(game));
         GameResponseDto responseDto = new GameResponseDto(1L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13), "cover", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
         when(mapper.toGameResponseDtoList(anyList())).thenReturn(List.of(responseDto));
 
         List<GameResponseDto> results = gameService.findGamesDynamically(
-                null, null, null, null, null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null, null, null, null, null, null);
 
         assertEquals(1, results.size());
         assertEquals("Super Mario", results.get(0).name());
         assertEquals(15.0, results.get(0).lengthNormal());
-        verify(gameRepository, times(1)).findDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+        verify(gameRepository, times(1)).findDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
     }
 
     @Test

@@ -2,7 +2,7 @@ package dev.abdulrahman.excelsior.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.abdulrahman.excelsior.business.GameService;
-import dev.abdulrahman.excelsior.business.game.GameNotFoundException;
+import dev.abdulrahman.excelsior.presentation.exception.GameNotFoundException;
 import dev.abdulrahman.excelsior.business.game.GameRequestDto;
 import dev.abdulrahman.excelsior.business.game.GameResponseDto;
 import org.junit.jupiter.api.Test;
@@ -54,9 +54,27 @@ class GameControllerTest {
     }
 
     @Test
+    void addGame_GameAlreadyExists_ReturnsConflict() throws Exception {
+        GameRequestDto requestDto = new GameRequestDto(12345L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15),
+                "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
+
+        doThrow(new dev.abdulrahman.excelsior.presentation.exception.GameAlreadyExistsException("Game with IGDB ID '12345' already exists.")).when(gameService).addGame(any(GameRequestDto.class));
+
+        mockMvc.perform(post("/api/games")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.title").value("Game Already Exists"))
+                .andExpect(jsonPath("$.detail").value("Game with IGDB ID '12345' already exists."))
+                .andExpect(jsonPath("$.status").value(409));
+
+        verify(gameService, times(1)).addGame(any(GameRequestDto.class));
+    }
+
+    @Test
     void getAllGames_ReturnsGameList() throws Exception {
         GameResponseDto responseDto = new GameResponseDto(1L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
-        when(gameService.findGamesDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(List.of(responseDto));
+        when(gameService.findGamesDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(List.of(responseDto));
 
         mockMvc.perform(get("/api/games"))
                 .andExpect(status().isOk())
@@ -65,7 +83,7 @@ class GameControllerTest {
                 .andExpect(jsonPath("$[0].name").value("Halo"))
                 .andExpect(jsonPath("$[0].length_normal").value(10.0));
 
-        verify(gameService, times(1)).findGamesDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+        verify(gameService, times(1)).findGamesDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
     }
 
     @Test
@@ -83,10 +101,13 @@ class GameControllerTest {
 
     @Test
     void getGame_GameDoesNotExist_ReturnsNotFound() throws Exception {
-        when(gameService.getGameById(99L)).thenThrow(new GameNotFoundException());
+        when(gameService.getGameById(99L)).thenThrow(new GameNotFoundException("Could not find a game with ID '99'"));
 
         mockMvc.perform(get("/api/games/{id}", 99L))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.title").value("Game Not Found"))
+                .andExpect(jsonPath("$.detail").value("Could not find a game with ID '99'"))
+                .andExpect(jsonPath("$.status").value(404));
 
         verify(gameService, times(1)).getGameById(99L);
     }
@@ -109,12 +130,15 @@ class GameControllerTest {
         GameRequestDto requestDto = new GameRequestDto(12345L, "Halo 2", 12.0, 15.0, LocalDate.of(2004, 11, 9),
                 "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
         
-        doThrow(new GameNotFoundException()).when(gameService).updateGame(eq(99L), any(GameRequestDto.class));
+        doThrow(new GameNotFoundException("Could not find a game with ID '99'")).when(gameService).updateGame(eq(99L), any(GameRequestDto.class));
 
         mockMvc.perform(put("/api/games/{id}", 99L)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.title").value("Game Not Found"))
+                .andExpect(jsonPath("$.detail").value("Could not find a game with ID '99'"))
+                .andExpect(jsonPath("$.status").value(404));
 
         verify(gameService, times(1)).updateGame(eq(99L), any(GameRequestDto.class));
     }
@@ -129,10 +153,13 @@ class GameControllerTest {
 
     @Test
     void deleteGame_GameDoesNotExist_ReturnsNotFound() throws Exception {
-        doThrow(new GameNotFoundException()).when(gameService).deleteGame(99L);
+        doThrow(new GameNotFoundException("Could not find a game with ID '99'")).when(gameService).deleteGame(99L);
 
         mockMvc.perform(delete("/api/games/{id}", 99L))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.title").value("Game Not Found"))
+                .andExpect(jsonPath("$.detail").value("Could not find a game with ID '99'"))
+                .andExpect(jsonPath("$.status").value(404));
 
         verify(gameService, times(1)).deleteGame(99L);
     }

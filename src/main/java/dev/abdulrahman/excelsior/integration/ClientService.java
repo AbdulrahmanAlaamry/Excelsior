@@ -1,6 +1,6 @@
 package dev.abdulrahman.excelsior.integration;
 
-import dev.abdulrahman.excelsior.business.game.GameNotFoundException;
+import dev.abdulrahman.excelsior.presentation.exception.GameNotFoundException;
 import dev.abdulrahman.excelsior.business.game.GameRequestDto;
 import dev.abdulrahman.excelsior.integration.auth.AuthService;
 import dev.abdulrahman.excelsior.integration.dto.GameDto;
@@ -45,7 +45,7 @@ public class ClientService {
         );
 
         if (gameResponse == null || gameResponse.length == 0) {
-            throw new GameNotFoundException();
+            throw new GameNotFoundException("Could not find a game with the query \"" + query + "\"");
         }
 
         GameDto gameDto = gameResponse[0];
