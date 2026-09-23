@@ -48,13 +48,15 @@ public class GameController {
             @RequestParam(name = "max_length_complete", required = false) Double maxLengthComplete,
             @RequestParam(name = "min_date", required = false) @JsonFormat(pattern = "dd/MM/yyyy") LocalDate minDate,
             @RequestParam(name = "max_date", required = false) @JsonFormat(pattern = "dd/MM/yyyy") LocalDate maxDate,
+            @RequestParam(name = "min_year", required = false) Integer minYear,
+            @RequestParam(name = "max_year", required = false) Integer maxYear,
             Sort sort
             ) {
 
         return this.service.findGamesDynamically(
                 minRating, maxRating, nameContains, genreContains,
                 minLengthNormal, maxLengthNormal, minLengthComplete, maxLengthComplete,
-                minDate, maxDate, sort
+                minDate, maxDate, minYear, maxYear, sort
         );
     }
 

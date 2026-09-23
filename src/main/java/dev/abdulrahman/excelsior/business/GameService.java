@@ -4,6 +4,7 @@ import dev.abdulrahman.excelsior.business.game.*;
 import dev.abdulrahman.excelsior.integration.ClientService;
 import dev.abdulrahman.excelsior.mapper.DtoMapper;
 import dev.abdulrahman.excelsior.persistence.GameRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -62,13 +63,13 @@ public class GameService {
     public List<GameResponseDto> findGamesDynamically(
             Double minRating, Double maxRating, String nameContains, String genreContains,
             Double minLengthNormal, Double maxLengthNormal, Double minLengthComplete, Double maxLengthComplete, 
-            LocalDate minDate, LocalDate maxDate, org.springframework.data.domain.Sort sort
+            LocalDate minDate, LocalDate maxDate, Integer minYear, Integer maxYear, Sort sort
     ) {
         return mapper.toGameResponseDtoList(
                 repo.findDynamically(
                         minRating, maxRating, nameContains, genreContains,
                         minLengthNormal, maxLengthNormal, minLengthComplete, maxLengthComplete, 
-                        minDate, maxDate, sort
+                        minDate, maxDate, minYear, maxYear, sort
                 )
         );
     }
