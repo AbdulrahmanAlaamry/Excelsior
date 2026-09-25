@@ -10,8 +10,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Service
 public class ClientService {
+    private static final Integer DEFAULT_API_QUERY_LIMIT = 5;
     private final String clientId;
     private final String apiUrl;
     private final AuthService authService;
@@ -32,15 +36,20 @@ public class ClientService {
         this.restClient = RestClient.create();
     }
 
-    public GameRequestDto searchGames(String query) {
+    public List<GameRequestDto> searchGames(String query, Integer limit) {
+        if (limit == null) {
+            limit = DEFAULT_API_QUERY_LIMIT;
+        }
+
         GameDto[] gameResponse = initiateRequest(
                 "/games",
                 "fields id, cover.url, cover.width, cover.height, first_release_date, name, slug, storyline, "
                         + "summary, total_rating, total_rating_count, game_engines.name, genres.name, " +
                         "involved_companies.company.name, artworks.url, artworks.width, artworks.height, " +
-                        "screenshots.url, screenshots.width, screenshots.height, platforms.name ; " +
+                        "screenshots.url, screenshots.width, screenshots.height, platforms.name; " +
                         "search \"" + query + "\";" +
-                        "where game_type = (0, 8, 9) & version_parent = null;",
+                        "where game_type = (0, 8, 9) & version_parent = null;" +
+                        "limit " + limit + ";",
                 GameDto[].class
         );
 
@@ -48,11 +57,12 @@ public class ClientService {
             throw new GameNotFoundException("Could not find a game with the query \"" + query + "\"");
         }
 
-        GameDto gameDto = gameResponse[0];
-
-        TimeToBeatDto timeToBeatDto = getTimeToBeat(gameDto.id());
-
-        return mapper.toGameRequestDto(gameDto, timeToBeatDto);
+        return Arrays.stream(gameResponse)
+                .map(gameDto -> {
+                    TimeToBeatDto timeToBeatDto = getTimeToBeat(gameDto.id());
+                    return mapper.toGameRequestDto(gameDto, timeToBeatDto);
+                })
+                .toList();
     }
 
     public TimeToBeatDto getTimeToBeat(Integer igdbId) {

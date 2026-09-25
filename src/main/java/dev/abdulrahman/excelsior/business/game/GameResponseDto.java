@@ -28,7 +28,6 @@ public record GameResponseDto(
         List<String> companies,
         GameTier tier,
         GameStatus status,
-        List<String> artworkUrls,
         List<String> screenshotUrls,
         List<String> platforms
 ) {

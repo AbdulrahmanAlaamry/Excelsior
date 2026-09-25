@@ -25,12 +25,8 @@ public class GameService {
         this.mapper = mapper;
     }
 
-    public void searchAndAddGame(String query) {
-        addGame(searchGame(query));
-    }
-
-    public GameRequestDto searchGame(String query) {
-        return clientService.searchGames(query);
+    public List<GameRequestDto> searchGame(String query, Integer limit) {
+        return clientService.searchGames(query, limit);
     }
 
     public void addGame(GameRequestDto dto) {
@@ -40,6 +36,8 @@ public class GameService {
         }
         repo.save(mapper.toGameEntity(dto));
     }
+
+    // TODO: Implement addAllGames() method
 
     public GameResponseDto getGameById(Long id) {
         return mapper.toGameResponseDto(findGameById(id));
@@ -60,6 +58,9 @@ public class GameService {
     }
 
     public void deleteGame(Long id) {
+        if (!repo.existsById(id)) {
+            throw idNotFound(id);
+        }
         repo.delete(findGameById(id));
     }
 
@@ -77,9 +78,13 @@ public class GameService {
         );
     }
 
+    private GameNotFoundException idNotFound(Long id) {
+        return new GameNotFoundException("Could not find a game with ID '" + id + "'");
+    }
+
     private Game findGameById(Long id) {
         return repo.findById(id)
-                .orElseThrow(() -> new GameNotFoundException("Could not find a game with ID '" + id + "'"));
+                .orElseThrow(() -> idNotFound(id));
     }
 
     private <T> void updateField(Long id, BiConsumer<Game, T> mutator, T field) {

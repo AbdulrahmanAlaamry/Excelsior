@@ -98,9 +98,9 @@ class ClientServiceTest {
                 85.5, 120, "A great storyline", "A short summary", "engine", List.of("Action"), List.of("Sony"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
         when(mapper.toGameRequestDto(any(GameDto.class), any(TimeToBeatDto.class))).thenReturn(expectedDto);
 
-        GameRequestDto result = clientService.searchGames(searchQuery);
+        List<GameRequestDto> result = clientService.searchGames(searchQuery, 1);
 
-        assertEquals(expectedDto, result);
+        assertEquals(List.of(expectedDto), result);
         verify(mapper, times(1)).toGameRequestDto(any(GameDto.class), any(TimeToBeatDto.class));
 
         var req1 = mockWebServer.takeRequest();
@@ -125,7 +125,7 @@ class ClientServiceTest {
                 .setBody("[]")
                 .addHeader("Content-Type", "application/json"));
 
-        assertThrows(GameNotFoundException.class, () -> clientService.searchGames(searchQuery));
+        assertThrows(GameNotFoundException.class, () -> clientService.searchGames(searchQuery, 10));
         verify(mapper, never()).toGameRequestDto(any(), any());
     }
 
@@ -140,7 +140,7 @@ class ClientServiceTest {
                 .setBody("")
                 .addHeader("Content-Type", "application/json"));
 
-        assertThrows(GameNotFoundException.class, () -> clientService.searchGames(searchQuery));
+        assertThrows(GameNotFoundException.class, () -> clientService.searchGames(searchQuery, 10));
     }
 
     @Test

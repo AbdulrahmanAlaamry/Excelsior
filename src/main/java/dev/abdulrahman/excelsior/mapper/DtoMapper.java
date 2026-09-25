@@ -28,7 +28,7 @@ public class DtoMapper {
                 : 0.0;
 
         String coverUrl = gameDto.cover() != null
-                ? gameDto.cover().url()
+                ? formatImageUrl(gameDto.cover().url())
                 : null;
 
         String primaryEngine = "Unknown/Proprietary";
@@ -42,8 +42,8 @@ public class DtoMapper {
         CompanyDto[] companyDtos = parseArrayToArray(gameDto.involvedCompanies(), InvolvedCompanyDto::company, CompanyDto[]::new);
         List<String> companies = parseArrayToList(companyDtos, CompanyDto::name);
 
-        List<String> artworkUrls = parseArrayToList(gameDto.artworks(), ImageDto::url);
-        List<String> screenshotUrls = parseArrayToList(gameDto.screenshots(), ImageDto::url);
+        List<String> artworkUrls = parseArrayToList(gameDto.artworks(), img -> formatImageUrl(img.url()));
+        List<String> screenshotUrls = parseArrayToList(gameDto.screenshots(), img -> formatImageUrl(img.url()));
         List<String> platforms = parseArrayToList(gameDto.platforms(), PlatformDto::name);
 
         return new GameRequestDto(
@@ -108,7 +108,6 @@ public class DtoMapper {
                 game.getCompanies(),
                 game.getTier(),
                 game.getStatus(),
-                game.getArtworkUrls(),
                 game.getScreenshotUrls(),
                 game.getPlatforms()
         );
@@ -138,5 +137,13 @@ public class DtoMapper {
         return arr != null
                 ? Arrays.stream(arr).map(mapper).toList()
                 : List.of();
+    }
+
+    private String formatImageUrl(String url) {
+        if (url == null) {
+            return null;
+        }
+
+        return url.replace("t_thumb", "t_1080p").replaceFirst("^//", "https://");
     }
 }

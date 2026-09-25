@@ -73,7 +73,7 @@ class GameControllerTest {
 
     @Test
     void getAllGames_ReturnsGameList() throws Exception {
-        GameResponseDto responseDto = new GameResponseDto(1L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
+        GameResponseDto responseDto = new GameResponseDto(1L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"));
         when(gameService.findGamesDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(List.of(responseDto));
 
         mockMvc.perform(get("/api/games"))
@@ -88,7 +88,7 @@ class GameControllerTest {
 
     @Test
     void getGame_GameExists_ReturnsGame() throws Exception {
-        GameResponseDto responseDto = new GameResponseDto(1L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
+        GameResponseDto responseDto = new GameResponseDto(1L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"));
         when(gameService.getGameById(1L)).thenReturn(responseDto);
 
         mockMvc.perform(get("/api/games/{id}", 1L))
@@ -165,28 +165,18 @@ class GameControllerTest {
     }
 
     @Test
-    void searchAndAddGame_ValidRequest_ReturnsCreated() throws Exception {
-        mockMvc.perform(post("/api/games/add")
-                .param("query", "God of War")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated());
-
-        verify(gameService, times(1)).searchAndAddGame("God of War");
-    }
-
-    @Test
     void searchGame_ValidRequest_ReturnsGameRequestDto() throws Exception {
         GameRequestDto responseDto = new GameRequestDto(12345L, "God of War", 10.0, 15.0, LocalDate.of(2005, 3, 22), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Santa Monica"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
-        when(gameService.searchGame("God of War")).thenReturn(responseDto);
+        when(gameService.searchGame("God of War", null)).thenReturn(List.of(responseDto));
 
         mockMvc.perform(get("/api/games/search")
                 .param("query", "God of War")
                 .with(request -> { request.setRemoteAddr("1.1.1.1"); return request; })
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("God of War"));
+                .andExpect(jsonPath("$[0].name").value("God of War"));
 
-        verify(gameService, times(1)).searchGame("God of War");
+        verify(gameService, times(1)).searchGame("God of War", null);
     }
 
     @Test
@@ -206,7 +196,7 @@ class GameControllerTest {
                 .andExpect(status().isTooManyRequests())
                 .andExpect(content().string("Too many search requests. Please wait a minute and try again."));
         
-        verify(gameService, times(5)).searchGame("God of War");
+        verify(gameService, times(5)).searchGame("God of War", null);
     }
 
     @Test

@@ -19,15 +19,9 @@ public class GameController {
         this.service = service;
     }
 
-    @PostMapping("/add")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void searchAndAddGame(@RequestParam String query) {
-        this.service.searchAndAddGame(query);
-    }
-
     @GetMapping("/search")
-    public GameRequestDto searchGame(@RequestParam String query) {
-        return this.service.searchGame(query);
+    public List<GameRequestDto> searchGame(@RequestParam String query, @RequestParam(required = false) Integer limit) {
+        return this.service.searchGame(query, limit);
     }
 
     @PostMapping
