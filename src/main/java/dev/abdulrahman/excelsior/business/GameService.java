@@ -53,7 +53,7 @@ public class GameService {
     }
 
     public void updateTier(Long id, GameTier tier) {
-        updateField(id, Game::setTier, tier);
+        updateField(id, Game::setTierValue, tier);
     }
 
     public void updateStatus(Long id, GameStatus status) {

@@ -15,7 +15,6 @@ public record GameDto(
         @JsonProperty("game_engines") EngineDto[] engines,
         GenreDto[] genres,
         @JsonProperty("involved_companies") InvolvedCompanyDto[] involvedCompanies,
-        ImageDto[] artworks,
         ImageDto[] screenshots,
         PlatformDto[] platforms
 ) {}

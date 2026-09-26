@@ -60,7 +60,6 @@ public record GameRequestDto(
         @NotNull(message = "Game status must be specified.")
         GameStatus status,
 
-        List<String> artworkUrls,
         List<String> screenshotUrls,
         List<String> platforms
 ) {

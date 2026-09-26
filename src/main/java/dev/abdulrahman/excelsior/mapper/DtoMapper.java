@@ -42,7 +42,6 @@ public class DtoMapper {
         CompanyDto[] companyDtos = parseArrayToArray(gameDto.involvedCompanies(), InvolvedCompanyDto::company, CompanyDto[]::new);
         List<String> companies = parseArrayToList(companyDtos, CompanyDto::name);
 
-        List<String> artworkUrls = parseArrayToList(gameDto.artworks(), img -> formatImageUrl(img.url()));
         List<String> screenshotUrls = parseArrayToList(gameDto.screenshots(), img -> formatImageUrl(img.url()));
         List<String> platforms = parseArrayToList(gameDto.platforms(), PlatformDto::name);
 
@@ -55,14 +54,13 @@ public class DtoMapper {
                 coverUrl,
                 round(gameDto.rating()),
                 gameDto.ratingCount(),
-                gameDto.storyline(),
-                gameDto.summary(),
+                truncate(gameDto.storyline()),
+                truncate(gameDto.summary()),
                 primaryEngine,
                 genres,
                 companies,
                 GameTier.NONE,
                 GameStatus.UNKNOWN,
-                artworkUrls,
                 screenshotUrls,
                 platforms
         );
@@ -85,7 +83,6 @@ public class DtoMapper {
                 dto.companies(),
                 dto.tier(),
                 dto.status(),
-                dto.artworkUrls(),
                 dto.screenshotUrls(),
                 dto.platforms()
         );
@@ -106,7 +103,7 @@ public class DtoMapper {
                 game.getPrimaryEngine(),
                 game.getGenres(),
                 game.getCompanies(),
-                game.getTier(),
+                game.getTierValue(),
                 game.getStatus(),
                 game.getScreenshotUrls(),
                 game.getPlatforms()
@@ -145,5 +142,11 @@ public class DtoMapper {
         }
 
         return url.replace("t_thumb", "t_1080p").replaceFirst("^//", "https://");
+    }
+
+    private String truncate(String text) {
+        return (text != null && text.length() > 4995)
+                ? text.substring(0, 4995) + "..."
+                : text;
     }
 }

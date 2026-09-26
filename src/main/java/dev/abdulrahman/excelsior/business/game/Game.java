@@ -1,6 +1,7 @@
 package dev.abdulrahman.excelsior.business.game;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Formula;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -28,11 +29,17 @@ public class Game {
     private String primaryEngine;
     @ElementCollection private List<String> genres;
     @ElementCollection private List<String> companies;
-    @Enumerated(EnumType.STRING) private GameTier tier;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tier")
+    private GameTier tierValue;
+    
     @Enumerated(EnumType.STRING) private GameStatus status;
-    @ElementCollection private List<String> artworkUrls;
     @ElementCollection private List<String> screenshotUrls;
     @ElementCollection private List<String> platforms;
+
+    @Formula("(CASE tier WHEN 'S' THEN 6 WHEN 'A' THEN 5 WHEN 'B' THEN 4 WHEN 'C' THEN 3 WHEN 'D' THEN 2 ELSE 1 END)")
+    private Integer tier;
 
     protected Game() {}
 
@@ -49,9 +56,8 @@ public class Game {
                 String primaryEngine,
                 List<String> genres,
                 List<String> companies,
-                GameTier tier,
+                GameTier tierValue,
                 GameStatus status,
-                List<String> artworkUrls,
                 List<String> screenshotUrls,
                 List<String> platforms
     ) {
@@ -68,9 +74,8 @@ public class Game {
         setPrimaryEngine(primaryEngine);
         setGenres(genres);
         setCompanies(companies);
-        setTier(tier);
+        setTierValue(tierValue);
         setStatus(status);
-        setArtworkUrls(artworkUrls);
         setScreenshotUrls(screenshotUrls);
         setPlatforms(platforms);
     }
@@ -187,12 +192,12 @@ public class Game {
         this.companies = companies;
     }
 
-    public GameTier getTier() {
-        return tier;
+    public GameTier getTierValue() {
+        return tierValue;
     }
 
-    public void setTier(GameTier tier) {
-        this.tier = tier;
+    public void setTierValue(GameTier tierValue) {
+        this.tierValue = tierValue;
     }
 
     public GameStatus getStatus() {
@@ -201,14 +206,6 @@ public class Game {
 
     public void setStatus(GameStatus status) {
         this.status = status;
-    }
-
-    public List<String> getArtworkUrls() {
-        return artworkUrls;
-    }
-
-    public void setArtworkUrls(List<String> artworkUrls) {
-        this.artworkUrls = artworkUrls;
     }
 
     public List<String> getScreenshotUrls() {
@@ -227,6 +224,10 @@ public class Game {
         this.platforms = platforms;
     }
 
+    public Integer getTier() {
+        return tier;
+    }
+
     public void setAll(GameRequestDto dto) {
         setIgdbId(dto.igdbId());
         setName(dto.name());
@@ -241,9 +242,8 @@ public class Game {
         setPrimaryEngine(dto.primaryEngine());
         setGenres(dto.genres());
         setCompanies(dto.companies());
-        setTier(dto.tier());
+        setTierValue(dto.tier());
         setStatus(dto.status());
-        setArtworkUrls(dto.artworkUrls());
         setScreenshotUrls(dto.screenshotUrls());
         setPlatforms(dto.platforms());
     }
