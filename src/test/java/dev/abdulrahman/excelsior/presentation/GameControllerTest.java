@@ -41,7 +41,7 @@ class GameControllerTest {
     private GameService gameService;
 
     @Test
-    void addGame_ValidRequest_ReturnsCreated() throws Exception {
+    void addAllGames_ValidRequest_ReturnsCreated() throws Exception {
         GameRequestDto requestDto = new GameRequestDto(12345L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15),
                 "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
 
@@ -50,15 +50,15 @@ class GameControllerTest {
                 .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isCreated());
 
-        verify(gameService, times(1)).addGame(any(GameRequestDto.class));
+        verify(gameService, times(1)).addAllGames(anyList());
     }
 
     @Test
-    void addGame_GameAlreadyExists_ReturnsConflict() throws Exception {
+    void addGame_GamesAlreadyExists_ReturnsConflict() throws Exception {
         GameRequestDto requestDto = new GameRequestDto(12345L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15),
                 "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
 
-        doThrow(new dev.abdulrahman.excelsior.presentation.exception.GameAlreadyExistsException("Game with IGDB ID '12345' already exists.")).when(gameService).addGame(any(GameRequestDto.class));
+        doThrow(new dev.abdulrahman.excelsior.presentation.exception.GameAlreadyExistsException("Game with IGDB ID '12345' already exists.")).when(gameService).addAllGames(anyList());
 
         mockMvc.perform(post("/api/games")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -68,7 +68,22 @@ class GameControllerTest {
                 .andExpect(jsonPath("$.detail").value("Game with IGDB ID '12345' already exists."))
                 .andExpect(jsonPath("$.status").value(409));
 
-        verify(gameService, times(1)).addGame(any(GameRequestDto.class));
+        verify(gameService, times(1)).addAllGames(anyList());
+    }
+
+    @Test
+    void addAllGames_InvalidRequest_ReturnsBadRequest() throws Exception {
+        GameRequestDto invalidDto = new GameRequestDto(12345L, "", 10.0, 15.0, LocalDate.of(2001, 11, 15),
+                "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
+
+        mockMvc.perform(post("/api/games")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(List.of(invalidDto))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Validation Error"))
+                .andExpect(jsonPath("$.detail").value("Game name cannot be empty."));
+        
+        verify(gameService, never()).addAllGames(anyList());
     }
 
     @Test
@@ -97,6 +112,16 @@ class GameControllerTest {
                 .andExpect(jsonPath("$.name").value("Halo"));
 
         verify(gameService, times(1)).getGameById(1L);
+    }
+
+    @Test
+    void getGame_InvalidId_ReturnsBadRequest() throws Exception {
+        mockMvc.perform(get("/api/games/{id}", -1L))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Validation Error"))
+                .andExpect(jsonPath("$.detail").value("Game ID must be greater than 0."));
+        
+        verify(gameService, never()).getGameById(any());
     }
 
     @Test

@@ -1,18 +1,22 @@
 package dev.abdulrahman.excelsior.presentation;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import dev.abdulrahman.excelsior.business.GameService;
 import dev.abdulrahman.excelsior.business.game.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
+@Validated
 @RequestMapping("/api/games")
 public class GameController {
+    private static final String INVALID_ID_MESSAGE = "Game ID must be greater than 0.";
     private final GameService service;
 
     public GameController(GameService service) {
@@ -20,52 +24,61 @@ public class GameController {
     }
 
     @GetMapping("/search")
-    public List<GameRequestDto> searchGame(@RequestParam String query, @RequestParam(required = false) Integer limit) {
+    public List<GameRequestDto> searchGame(
+            @NotBlank(message = "Search query cannot be empty.")
+            @RequestParam
+            String query,
+
+            @Positive(message = "Search result limit must be greater than 0.")
+            @RequestParam(required = false)
+            Integer limit
+    ) {
         return this.service.searchGame(query, limit);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void addGame(@RequestBody GameRequestDto dto) {
-        this.service.addGame(dto);
+    public void addAllGames(@RequestBody List<@Valid GameRequestDto> dtos) {
+        this.service.addAllGames(dtos);
     }
 
     @GetMapping
-    public List<GameResponseDto> getAllGames(
-            @RequestParam(name = "min_rating", required = false) Double minRating,
-            @RequestParam(name = "max_rating", required = false) Double maxRating,
-            @RequestParam(name = "name_contains", required = false) String nameContains,
-            @RequestParam(name = "genre_contains", required = false) String genreContains,
-            @RequestParam(name = "min_length_normal", required = false) Double minLengthNormal,
-            @RequestParam(name = "max_length_normal", required = false) Double maxLengthNormal,
-            @RequestParam(name = "min_length_complete", required = false) Double minLengthComplete,
-            @RequestParam(name = "max_length_complete", required = false) Double maxLengthComplete,
-            @RequestParam(name = "min_date", required = false) @JsonFormat(pattern = "dd/MM/yyyy") LocalDate minDate,
-            @RequestParam(name = "max_date", required = false) @JsonFormat(pattern = "dd/MM/yyyy") LocalDate maxDate,
-            @RequestParam(name = "min_year", required = false) Integer minYear,
-            @RequestParam(name = "max_year", required = false) Integer maxYear,
-            Sort sort
-            ) {
-
+    public List<GameResponseDto> getAllGames(@Valid GameFilterDto dto, Sort sort) {
         return this.service.findGamesDynamically(
-                minRating, maxRating, nameContains, genreContains,
-                minLengthNormal, maxLengthNormal, minLengthComplete, maxLengthComplete,
-                minDate, maxDate, minYear, maxYear, sort
+                dto.minRating(), dto.maxRating(), dto.nameContains(), dto.genreContains(),
+                dto.minLengthNormal(), dto.maxLengthNormal(), dto.minLengthComplete(), dto.maxLengthComplete(),
+                dto.minDate(), dto.maxDate(), dto.minYear(), dto.maxYear(), sort
         );
     }
 
     @GetMapping("/{id}")
-    public GameResponseDto getGame(@PathVariable Long id) {
+    public GameResponseDto getGame(@Positive(message = INVALID_ID_MESSAGE) @PathVariable Long id) {
         return this.service.getGameById(id);
     }
 
     @PutMapping("/{id}")
-    public void updateGame(@PathVariable Long id, @RequestBody GameRequestDto dto) {
+    public void updateGame(
+            @Positive(message = INVALID_ID_MESSAGE)
+            @PathVariable
+            Long id,
+
+            @Valid
+            @RequestBody
+            GameRequestDto dto
+    ) {
         this.service.updateGame(id, dto);
     }
 
     @PatchMapping("/{id}")
-    public void updateTier(@PathVariable Long id, @RequestBody GamePatchDto dto) {
+    public void updateTier(
+            @Positive(message = INVALID_ID_MESSAGE)
+            @PathVariable
+            Long id,
+
+            @Valid
+            @RequestBody
+            GamePatchDto dto
+    ) {
         if (dto.tier() != null) {
             this.service.updateTier(id, dto.tier());
         }
@@ -76,7 +89,7 @@ public class GameController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteGame(@PathVariable Long id) {
+    public void deleteGame(@Positive(message = INVALID_ID_MESSAGE) @PathVariable Long id) {
         this.service.deleteGame(id);
     }
 }

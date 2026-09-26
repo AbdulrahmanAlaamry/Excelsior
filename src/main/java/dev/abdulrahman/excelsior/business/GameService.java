@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -37,7 +38,9 @@ public class GameService {
         repo.save(mapper.toGameEntity(dto));
     }
 
-    // TODO: Implement addAllGames() method
+    public void addAllGames(Collection<GameRequestDto> dtos) {
+        dtos.forEach(this::addGame);
+    }
 
     public GameResponseDto getGameById(Long id) {
         return mapper.toGameResponseDto(findGameById(id));

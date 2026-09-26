@@ -2,22 +2,21 @@ package dev.abdulrahman.excelsior.business.game;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record GameResponseDto(
         Long id,
         String name,
         @JsonProperty("length_normal") Double lengthNormal,
         @JsonProperty("length_complete") Double lengthComplete,
+
         @JsonFormat(pattern = "dd/MM/yyyy")
         @JsonProperty("release_date")
         LocalDate releaseDate,
+
         @JsonProperty("cover_url") String coverUrl,
         Double rating,
         @JsonProperty("rating_count") Integer ratingCount,
