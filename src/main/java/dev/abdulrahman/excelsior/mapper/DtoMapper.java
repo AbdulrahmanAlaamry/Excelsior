@@ -14,7 +14,7 @@ import java.util.function.IntFunction;
 
 @Component
 public class DtoMapper {
-    public GameRequestDto toGameRequestDto(GameDto gameDto, TimeToBeatDto timeToBeatDto) {
+    public GameResponseDto toGameResponseDto(GameDto gameDto, TimeToBeatDto timeToBeatDto) {
         LocalDate releaseDate = gameDto.releaseDate() != null
                 ? Instant.ofEpochSecond(gameDto.releaseDate()).atZone(ZoneId.systemDefault()).toLocalDate()
                 : LocalDate.EPOCH;
@@ -45,8 +45,8 @@ public class DtoMapper {
         List<String> screenshotUrls = parseArrayToList(gameDto.screenshots(), img -> formatImageUrl(img.url()));
         List<String> platforms = parseArrayToList(gameDto.platforms(), PlatformDto::name);
 
-        return new GameRequestDto(
-                Long.valueOf(gameDto.id()),
+        return new GameResponseDto(
+                null,
                 gameDto.name(),
                 lengthNormal,
                 lengthComplete,

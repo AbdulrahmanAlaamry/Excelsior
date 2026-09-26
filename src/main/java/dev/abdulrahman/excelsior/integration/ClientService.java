@@ -1,7 +1,7 @@
 package dev.abdulrahman.excelsior.integration;
 
 import dev.abdulrahman.excelsior.presentation.exception.GameNotFoundException;
-import dev.abdulrahman.excelsior.business.game.GameRequestDto;
+import dev.abdulrahman.excelsior.business.game.GameResponseDto;
 import dev.abdulrahman.excelsior.integration.auth.AuthService;
 import dev.abdulrahman.excelsior.integration.dto.GameDto;
 import dev.abdulrahman.excelsior.integration.dto.TimeToBeatDto;
@@ -36,7 +36,7 @@ public class ClientService {
         this.restClient = RestClient.create();
     }
 
-    public List<GameRequestDto> searchGames(String query, Integer limit) {
+    public List<GameResponseDto> searchGames(String query, Integer limit) {
         if (limit == null) {
             limit = DEFAULT_API_QUERY_LIMIT;
         }
@@ -60,7 +60,7 @@ public class ClientService {
         return Arrays.stream(gameResponse)
                 .map(gameDto -> {
                     TimeToBeatDto timeToBeatDto = getTimeToBeat(gameDto.id());
-                    return mapper.toGameRequestDto(gameDto, timeToBeatDto);
+                    return mapper.toGameResponseDto(gameDto, timeToBeatDto);
                 })
                 .toList();
     }

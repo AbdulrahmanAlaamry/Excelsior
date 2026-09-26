@@ -26,7 +26,7 @@ public class GameService {
         this.mapper = mapper;
     }
 
-    public List<GameRequestDto> searchGame(String query, Integer limit) {
+    public List<GameResponseDto> searchGame(String query, Integer limit) {
         return clientService.searchGames(query, limit);
     }
 

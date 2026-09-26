@@ -43,7 +43,7 @@ class GameControllerTest {
     @Test
     void addAllGames_ValidRequest_ReturnsCreated() throws Exception {
         GameRequestDto requestDto = new GameRequestDto(12345L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15),
-                "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
+                "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"));
 
         mockMvc.perform(post("/api/games")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -56,7 +56,7 @@ class GameControllerTest {
     @Test
     void addGame_GamesAlreadyExists_ReturnsConflict() throws Exception {
         GameRequestDto requestDto = new GameRequestDto(12345L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15),
-                "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
+                "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"));
 
         doThrow(new dev.abdulrahman.excelsior.presentation.exception.GameAlreadyExistsException("Game with IGDB ID '12345' already exists.")).when(gameService).addAllGames(anyList());
 
@@ -74,7 +74,7 @@ class GameControllerTest {
     @Test
     void addAllGames_InvalidRequest_ReturnsBadRequest() throws Exception {
         GameRequestDto invalidDto = new GameRequestDto(12345L, "", 10.0, 15.0, LocalDate.of(2001, 11, 15),
-                "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
+                "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"));
 
         mockMvc.perform(post("/api/games")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -140,7 +140,7 @@ class GameControllerTest {
     @Test
     void updateGame_ValidRequest_ReturnsOk() throws Exception {
         GameRequestDto requestDto = new GameRequestDto(12345L, "Halo 2", 12.0, 15.0, LocalDate.of(2004, 11, 9),
-                "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
+                "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"));
 
         mockMvc.perform(put("/api/games/{id}", 1L)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -153,7 +153,7 @@ class GameControllerTest {
     @Test
     void updateGame_GameDoesNotExist_ReturnsNotFound() throws Exception {
         GameRequestDto requestDto = new GameRequestDto(12345L, "Halo 2", 12.0, 15.0, LocalDate.of(2004, 11, 9),
-                "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
+                "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"));
         
         doThrow(new GameNotFoundException("Could not find a game with ID '99'")).when(gameService).updateGame(eq(99L), any(GameRequestDto.class));
 
@@ -190,8 +190,8 @@ class GameControllerTest {
     }
 
     @Test
-    void searchGame_ValidRequest_ReturnsGameRequestDto() throws Exception {
-        GameRequestDto responseDto = new GameRequestDto(12345L, "God of War", 10.0, 15.0, LocalDate.of(2005, 3, 22), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Santa Monica"), GameTier.S, GameStatus.COMPLETED, List.of("url1"), List.of("url2"), List.of("PC"));
+    void searchGame_ValidRequest_ReturnsGameResponseDto() throws Exception {
+        GameResponseDto responseDto = new GameResponseDto(1L, "God of War", 10.0, 15.0, LocalDate.of(2005, 3, 22), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Santa Monica"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"));
         when(gameService.searchGame("God of War", null)).thenReturn(List.of(responseDto));
 
         mockMvc.perform(get("/api/games/search")

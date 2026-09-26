@@ -24,7 +24,7 @@ public class GameController {
     }
 
     @GetMapping("/search")
-    public List<GameRequestDto> searchGame(
+    public List<GameResponseDto> searchGame(
             @NotBlank(message = "Search query cannot be empty.")
             @RequestParam
             String query,
