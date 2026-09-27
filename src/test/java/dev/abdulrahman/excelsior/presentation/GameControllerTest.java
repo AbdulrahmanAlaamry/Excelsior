@@ -14,6 +14,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 import java.util.List;
+import dev.abdulrahman.excelsior.presentation.exception.GameAlreadyExistsException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import dev.abdulrahman.excelsior.business.game.GameStatsDto;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -58,7 +63,7 @@ class GameControllerTest {
         GameRequestDto requestDto = new GameRequestDto(12345L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15),
                 "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"));
 
-        doThrow(new dev.abdulrahman.excelsior.presentation.exception.GameAlreadyExistsException("Game with IGDB ID '12345' already exists.")).when(gameService).addAllGames(anyList());
+        doThrow(new GameAlreadyExistsException("Game with IGDB ID '12345' already exists.")).when(gameService).addAllGames(anyList());
 
         mockMvc.perform(post("/api/games")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -88,22 +93,42 @@ class GameControllerTest {
 
     @Test
     void getAllGames_ReturnsGameList() throws Exception {
-        GameResponseDto responseDto = new GameResponseDto(1L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"));
-        when(gameService.findGamesDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(List.of(responseDto));
+        GameResponseDto responseDto = new GameResponseDto(1L, 123L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), true);
+        Page<GameResponseDto> page = new PageImpl<>(List.of(responseDto));
+        when(gameService.findGamesDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(page);
 
         mockMvc.perform(get("/api/games"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].name").value("Halo"))
-                .andExpect(jsonPath("$[0].length_normal").value(10.0));
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].name").value("Halo"))
+                .andExpect(jsonPath("$.content[0].length_normal").value(10.0));
 
         verify(gameService, times(1)).findGamesDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
     }
 
     @Test
+    void getStats_ReturnsGameStats() throws Exception {
+        GameStatsDto stats = new GameStatsDto(
+                50L,
+                Map.of(GameStatus.COMPLETED, 30L, GameStatus.PLAYING, 20L),
+                Map.of(GameTier.S, 10L)
+        );
+        when(gameService.getStats()).thenReturn(stats);
+
+        mockMvc.perform(get("/api/games/stats"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.total_games").value(50))
+                .andExpect(jsonPath("$.games_by_status.COMPLETED").value(30))
+                .andExpect(jsonPath("$.games_by_tier.S").value(10));
+
+        verify(gameService, times(1)).getStats();
+    }
+
+    @Test
     void getGame_GameExists_ReturnsGame() throws Exception {
-        GameResponseDto responseDto = new GameResponseDto(1L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"));
+        GameResponseDto responseDto = new GameResponseDto(1L, 123L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), true);
         when(gameService.getGameById(1L)).thenReturn(responseDto);
 
         mockMvc.perform(get("/api/games/{id}", 1L))
@@ -191,7 +216,7 @@ class GameControllerTest {
 
     @Test
     void searchGame_ValidRequest_ReturnsGameResponseDto() throws Exception {
-        GameResponseDto responseDto = new GameResponseDto(1L, "God of War", 10.0, 15.0, LocalDate.of(2005, 3, 22), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Santa Monica"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"));
+        GameResponseDto responseDto = new GameResponseDto(1L, 123L, "God of War", 10.0, 15.0, LocalDate.of(2005, 3, 22), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Santa Monica"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), true);
         when(gameService.searchGame("God of War", null)).thenReturn(List.of(responseDto));
 
         mockMvc.perform(get("/api/games/search")
@@ -219,7 +244,8 @@ class GameControllerTest {
                 .with(request -> { request.setRemoteAddr("2.2.2.2"); return request; })
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isTooManyRequests())
-                .andExpect(content().string("Too many search requests. Please wait a minute and try again."));
+                .andExpect(jsonPath("$.title").value("Too Many Requests"))
+                .andExpect(jsonPath("$.detail").value("Please wait a minute before searching again."));
         
         verify(gameService, times(5)).searchGame("God of War", null);
     }

@@ -1,6 +1,7 @@
 package dev.abdulrahman.excelsior.presentation.config;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -21,7 +22,7 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Override
-    public void addCorsMappings(org.springframework.web.servlet.config.annotation.CorsRegistry registry) {
+    public void addCorsMappings(CorsRegistry registry) {
         // Allows any frontend running on your local network (or Kombai) to access the API without security blocks
         registry.addMapping("/**")
                 .allowedOriginPatterns("*") 

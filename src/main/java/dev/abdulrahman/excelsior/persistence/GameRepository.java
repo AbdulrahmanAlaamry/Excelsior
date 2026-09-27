@@ -29,7 +29,7 @@ public interface GameRepository extends JpaRepository<Game, Long> {
            "(:maxDate IS NULL OR g.releaseDate <= :maxDate) AND " +
            "(:minYear IS NULL OR YEAR(g.releaseDate) >= :minYear) AND " +
            "(:maxYear IS NULL OR YEAR(g.releaseDate) <= :maxYear)")
-    List<Game> findDynamically(
+    Page<Game> findDynamically(
             @Param("minRating") Double minRating,
             @Param("maxRating") Double maxRating,
             @Param("nameContains") String nameContains,

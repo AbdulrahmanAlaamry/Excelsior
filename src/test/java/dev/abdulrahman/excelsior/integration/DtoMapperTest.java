@@ -1,6 +1,6 @@
 package dev.abdulrahman.excelsior.integration;
 
-import dev.abdulrahman.excelsior.business.game.GameRequestDto;
+import dev.abdulrahman.excelsior.business.game.GameResponseDto;
 import dev.abdulrahman.excelsior.integration.dto.ImageDto;
 import dev.abdulrahman.excelsior.integration.dto.GameDto;
 import dev.abdulrahman.excelsior.integration.dto.TimeToBeatDto;
@@ -48,7 +48,7 @@ class DtoMapperTest {
         // normally = 36000 seconds (10 hours), completely = 72000 seconds (20 hours)
         TimeToBeatDto timeToBeatDto = new TimeToBeatDto(72000, 36000);
 
-        dev.abdulrahman.excelsior.business.game.GameResponseDto result = mapper.toGameResponseDto(gameDto, timeToBeatDto);
+        GameResponseDto result = mapper.toGameResponseDto(gameDto, false, timeToBeatDto);
 
         assertNotNull(result);
         assertEquals("Awesome Game", result.name());
@@ -72,7 +72,7 @@ class DtoMapperTest {
         GameDto gameDto = new GameDto(1, new ImageDto(null, null, null), null, null, null, null, null, null, null, null, null, null, null, null);
         TimeToBeatDto timeToBeatDto = new TimeToBeatDto(null, null);
 
-        dev.abdulrahman.excelsior.business.game.GameResponseDto result = mapper.toGameResponseDto(gameDto, timeToBeatDto);
+        GameResponseDto result = mapper.toGameResponseDto(gameDto, false, timeToBeatDto);
 
         assertNotNull(result);
         assertNull(result.name());

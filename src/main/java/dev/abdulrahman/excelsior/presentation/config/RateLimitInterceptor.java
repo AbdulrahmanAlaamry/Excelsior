@@ -45,7 +45,8 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
         // If no tokens are left, reject the request with HTTP 429
         response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-        response.getWriter().write("Too many search requests. Please wait a minute and try again.");
+        response.setContentType("application/json");
+        response.getWriter().write("{\"title\": \"Too Many Requests\", \"detail\": \"Please wait a minute before searching again.\"}");
         return false;
     }
 }

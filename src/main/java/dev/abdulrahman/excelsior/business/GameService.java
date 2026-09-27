@@ -6,13 +6,16 @@ import dev.abdulrahman.excelsior.mapper.DtoMapper;
 import dev.abdulrahman.excelsior.persistence.GameRepository;
 import dev.abdulrahman.excelsior.presentation.exception.GameAlreadyExistsException;
 import dev.abdulrahman.excelsior.presentation.exception.GameNotFoundException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 @Service
 public class GameService {
@@ -67,18 +70,29 @@ public class GameService {
         repository.delete(findGameById(id));
     }
 
-    public List<GameResponseDto> findGamesDynamically(
+    public Page<GameResponseDto> findGamesDynamically(
             Double minRating, Double maxRating, String nameContains, String genreContains,
             Double minLengthNormal, Double maxLengthNormal, Double minLengthComplete, Double maxLengthComplete, 
             LocalDate minDate, LocalDate maxDate, Integer minYear, Integer maxYear, Pageable pageable
     ) {
-        return mapper.toGameResponseDtoList(
-                repository.findDynamically(
-                        minRating, maxRating, nameContains, genreContains,
-                        minLengthNormal, maxLengthNormal, minLengthComplete, maxLengthComplete, 
-                        minDate, maxDate, minYear, maxYear, pageable
-                )
-        );
+        return repository.findDynamically(
+                minRating, maxRating, nameContains, genreContains,
+                minLengthNormal, maxLengthNormal, minLengthComplete, maxLengthComplete, 
+                minDate, maxDate, minYear, maxYear, pageable
+        ).map(mapper::toGameResponseDto);
+    }
+    
+    public GameStatsDto getStats() {
+        List<Game> allGames = repository.findAll();
+        long total = allGames.size();
+        
+        Map<GameStatus, Long> byStatus = allGames.stream()
+                .collect(Collectors.groupingBy(Game::getStatus, Collectors.counting()));
+                
+        Map<GameTier, Long> byTier = allGames.stream()
+                .collect(Collectors.groupingBy(Game::getTierValue, Collectors.counting()));
+                
+        return new GameStatsDto(total, byStatus, byTier);
     }
 
     private GameNotFoundException idNotFound(Long id) {

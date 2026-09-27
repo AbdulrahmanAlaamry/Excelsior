@@ -1,9 +1,7 @@
 package dev.abdulrahman.excelsior.business;
 
-import dev.abdulrahman.excelsior.business.game.Game;
+import dev.abdulrahman.excelsior.business.game.*;
 import dev.abdulrahman.excelsior.presentation.exception.GameNotFoundException;
-import dev.abdulrahman.excelsior.business.game.GameRequestDto;
-import dev.abdulrahman.excelsior.business.game.GameResponseDto;
 import dev.abdulrahman.excelsior.persistence.GameRepository;
 import dev.abdulrahman.excelsior.mapper.DtoMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,8 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import dev.abdulrahman.excelsior.business.game.GameTier;
-import dev.abdulrahman.excelsior.business.game.GameStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -69,23 +67,24 @@ class GameServiceTest {
 
     @Test
     void findGamesDynamically_ReturnsListOfGames() {
-        when(gameRepository.findDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(List.of(game));
-        GameResponseDto responseDto = new GameResponseDto(1L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13), "cover", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"));
-        when(mapper.toGameResponseDtoList(anyList())).thenReturn(List.of(responseDto));
+        Page<Game> page = new PageImpl<>(List.of(game));
+        when(gameRepository.findDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(page);
+        GameResponseDto responseDto = new GameResponseDto(1L, 123L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13), "cover", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), true);
+        when(mapper.toGameResponseDto(game)).thenReturn(responseDto);
 
-        List<GameResponseDto> results = gameService.findGamesDynamically(
+        Page<GameResponseDto> results = gameService.findGamesDynamically(
                 null, null, null, null, null, null, null, null, null, null, null, null, null);
 
-        assertEquals(1, results.size());
-        assertEquals("Super Mario", results.get(0).name());
-        assertEquals(15.0, results.get(0).lengthNormal());
+        assertEquals(1, results.getContent().size());
+        assertEquals("Super Mario", results.getContent().get(0).name());
+        assertEquals(15.0, results.getContent().get(0).lengthNormal());
         verify(gameRepository, times(1)).findDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
     }
 
     @Test
     void getGameById_GameExists_ReturnsGame() {
         when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
-        GameResponseDto responseDto = new GameResponseDto(1L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13), "cover", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"));
+        GameResponseDto responseDto = new GameResponseDto(1L, 123L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13), "cover", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), true);
         when(mapper.toGameResponseDto(game)).thenReturn(responseDto);
 
         GameResponseDto result = gameService.getGameById(1L);
@@ -140,5 +139,21 @@ class GameServiceTest {
 
         assertThrows(GameNotFoundException.class, () -> gameService.deleteGame(2L));
         verify(gameRepository, never()).delete(any());
+    }
+
+    @Test
+    void getStats_ReturnsGameStats() {
+        Game game2 = new Game(124L, "Zelda", 20.0, 30.0, LocalDate.of(1986, 2, 21),
+                "cover2", 98.0, 2000, "synopsis", "desc", "engine", List.of("Adventure"), List.of("Nintendo"), GameTier.A, GameStatus.PLAYING, List.of("url2"), List.of("Switch"));
+        when(gameRepository.findAll()).thenReturn(List.of(game, game2));
+
+        GameStatsDto stats = gameService.getStats();
+
+        assertNotNull(stats);
+        assertEquals(2L, stats.totalGames());
+        assertEquals(1L, stats.gamesByStatus().get(GameStatus.COMPLETED));
+        assertEquals(1L, stats.gamesByStatus().get(GameStatus.PLAYING));
+        assertEquals(1L, stats.gamesByTier().get(GameTier.S));
+        assertEquals(1L, stats.gamesByTier().get(GameTier.A));
     }
 }
