@@ -8,6 +8,7 @@ import dev.abdulrahman.excelsior.integration.dto.GameDto;
 import dev.abdulrahman.excelsior.integration.dto.TimeToBeatDto;
 import dev.abdulrahman.excelsior.mapper.DtoMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -40,6 +41,7 @@ public class ClientService {
         this.restClient = RestClient.create();
     }
 
+    @Cacheable("igdb-search")
     public List<GameResponseDto> searchGames(String query, Integer limit) {
         if (limit == null) {
             limit = DEFAULT_API_QUERY_LIMIT;
