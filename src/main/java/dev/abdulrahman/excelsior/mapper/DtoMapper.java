@@ -64,7 +64,8 @@ public class DtoMapper {
                 GameStatus.UNKNOWN,
                 screenshotUrls,
                 platforms,
-                isInLibrary
+                isInLibrary,
+                0
         );
     }
 
@@ -110,7 +111,8 @@ public class DtoMapper {
                 game.getStatus(),
                 game.getScreenshotUrls(),
                 game.getPlatforms(),
-                true
+                true,
+                game.getTierPosition()
         );
     }
 

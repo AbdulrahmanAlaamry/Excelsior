@@ -30,7 +30,8 @@ public record GameResponseDto(
         GameStatus status,
         List<String> screenshotUrls,
         List<String> platforms,
-        @JsonProperty("is_in_library") Boolean isInLibrary
+        @JsonProperty("is_in_library") Boolean isInLibrary,
+        @JsonProperty("tier_position") Integer tierPosition
 ) {
     @Override
     public String toString() {

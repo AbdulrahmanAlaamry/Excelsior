@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -39,7 +40,7 @@ public class GameController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void addAllGames(@RequestBody List<@Valid GameRequestDto> dtos) {
+    public void addAllGames(@RequestBody Collection<@Valid GameRequestDto> dtos) {
         this.service.addAllGames(dtos);
     }
 
@@ -92,6 +93,11 @@ public class GameController {
         if (dto.status() != null) {
             this.service.updateStatus(id, dto.status());
         }
+    }
+
+    @PatchMapping("/tier-positions")
+    public void patchTierPositions(@RequestBody Collection<@Valid GameTierPositionPatchDto> dtos) {
+        service.updateTierPositionForAll(dtos);
     }
 
     @DeleteMapping("/{id}")

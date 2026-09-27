@@ -63,6 +63,17 @@ public class GameService {
         updateField(id, Game::setStatus, status);
     }
 
+    public void updateTierPosition(GameTierPositionPatchDto dto) {
+        Game game = findGameById(dto.id());
+        game.setTierValue(dto.tier());
+        game.setTierPosition(dto.position());
+        repository.save(game);
+    }
+
+    public void updateTierPositionForAll(Collection<GameTierPositionPatchDto> dtos) {
+        dtos.forEach(this::updateTierPosition);
+    }
+
     public void deleteGame(Long id) {
         if (!repository.existsById(id)) {
             throw idNotFound(id);

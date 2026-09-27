@@ -5,7 +5,6 @@ import org.hibernate.annotations.Formula;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,6 +39,7 @@ public class Game {
 
     @Formula("(CASE tier WHEN 'S' THEN 6 WHEN 'A' THEN 5 WHEN 'B' THEN 4 WHEN 'C' THEN 3 WHEN 'D' THEN 2 ELSE 1 END)")
     private Integer tier;
+    private Integer tierPosition;
 
     protected Game() {}
 
@@ -78,6 +78,7 @@ public class Game {
         setStatus(status);
         setScreenshotUrls(screenshotUrls);
         setPlatforms(platforms);
+        setTierPosition(0);
     }
 
     public Long getId() {
@@ -226,6 +227,14 @@ public class Game {
 
     public Integer getTier() {
         return tier;
+    }
+
+    public Integer getTierPosition() {
+        return tierPosition;
+    }
+
+    public void setTierPosition(Integer tierPosition) {
+        this.tierPosition = tierPosition;
     }
 
     public void setAll(GameRequestDto dto) {
