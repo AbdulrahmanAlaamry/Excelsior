@@ -9,6 +9,7 @@ import java.util.List;
 
 public record GameResponseDto(
         Long id,
+        @JsonProperty("igdb_id") Long igdbId,
         String name,
         @JsonProperty("length_normal") Double lengthNormal,
         @JsonProperty("length_complete") Double lengthComplete,
@@ -28,7 +29,8 @@ public record GameResponseDto(
         GameTier tier,
         GameStatus status,
         List<String> screenshotUrls,
-        List<String> platforms
+        List<String> platforms,
+        @JsonProperty("is_in_library") Boolean isInLibrary
 ) {
     @Override
     public String toString() {
@@ -43,6 +45,7 @@ public record GameResponseDto(
                 "\nDescription: " + description +
                 "\nPrimary Engine: " + primaryEngine +
                 "\nTier: " + tier +
-                "\nStatus: " + status;
+                "\nStatus: " + status +
+                "\nIn Library: " + isInLibrary;
     }
 }

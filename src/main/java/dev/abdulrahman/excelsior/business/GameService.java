@@ -6,7 +6,7 @@ import dev.abdulrahman.excelsior.mapper.DtoMapper;
 import dev.abdulrahman.excelsior.persistence.GameRepository;
 import dev.abdulrahman.excelsior.presentation.exception.GameAlreadyExistsException;
 import dev.abdulrahman.excelsior.presentation.exception.GameNotFoundException;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -16,12 +16,12 @@ import java.util.function.BiConsumer;
 
 @Service
 public class GameService {
-    private final GameRepository repo;
+    private final GameRepository repository;
     private final ClientService clientService;
     private final DtoMapper mapper;
 
-    public GameService(GameRepository repo, ClientService clientService, DtoMapper mapper) {
-        this.repo = repo;
+    public GameService(GameRepository repository, ClientService clientService, DtoMapper mapper) {
+        this.repository = repository;
         this.clientService = clientService;
         this.mapper = mapper;
     }
@@ -31,11 +31,11 @@ public class GameService {
     }
 
     public void addGame(GameRequestDto dto) {
-        if (repo.existsByIgdbId(dto.igdbId())) {
+        if (repository.existsByIgdbId(dto.igdbId())) {
             throw new GameAlreadyExistsException("Game with IGDB ID '" + dto.igdbId() +
                     "' (" + dto.name() + ") already exists");
         }
-        repo.save(mapper.toGameEntity(dto));
+        repository.save(mapper.toGameEntity(dto));
     }
 
     public void addAllGames(Collection<GameRequestDto> dtos) {
@@ -49,7 +49,7 @@ public class GameService {
     public void updateGame(Long id, GameRequestDto dto) {
         Game game = findGameById(id);
         game.setAll(dto);
-        repo.save(game);
+        repository.save(game);
     }
 
     public void updateTier(Long id, GameTier tier) {
@@ -61,22 +61,22 @@ public class GameService {
     }
 
     public void deleteGame(Long id) {
-        if (!repo.existsById(id)) {
+        if (!repository.existsById(id)) {
             throw idNotFound(id);
         }
-        repo.delete(findGameById(id));
+        repository.delete(findGameById(id));
     }
 
     public List<GameResponseDto> findGamesDynamically(
             Double minRating, Double maxRating, String nameContains, String genreContains,
             Double minLengthNormal, Double maxLengthNormal, Double minLengthComplete, Double maxLengthComplete, 
-            LocalDate minDate, LocalDate maxDate, Integer minYear, Integer maxYear, Sort sort
+            LocalDate minDate, LocalDate maxDate, Integer minYear, Integer maxYear, Pageable pageable
     ) {
         return mapper.toGameResponseDtoList(
-                repo.findDynamically(
+                repository.findDynamically(
                         minRating, maxRating, nameContains, genreContains,
                         minLengthNormal, maxLengthNormal, minLengthComplete, maxLengthComplete, 
-                        minDate, maxDate, minYear, maxYear, sort
+                        minDate, maxDate, minYear, maxYear, pageable
                 )
         );
     }
@@ -86,13 +86,13 @@ public class GameService {
     }
 
     private Game findGameById(Long id) {
-        return repo.findById(id)
+        return repository.findById(id)
                 .orElseThrow(() -> idNotFound(id));
     }
 
     private <T> void updateField(Long id, BiConsumer<Game, T> mutator, T field) {
         Game game = findGameById(id);
         mutator.accept(game, field);
-        repo.save(game);
+        repository.save(game);
     }
 }

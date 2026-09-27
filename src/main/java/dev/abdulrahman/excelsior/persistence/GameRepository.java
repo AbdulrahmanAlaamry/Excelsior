@@ -42,6 +42,6 @@ public interface GameRepository extends JpaRepository<Game, Long> {
             @Param("maxDate") LocalDate maxDate,
             @Param("minYear") Integer minYear,
             @Param("maxYear") Integer maxYear,
-            org.springframework.data.domain.Sort sort
+            Pageable pageable
     );
 }

@@ -14,7 +14,7 @@ import java.util.function.IntFunction;
 
 @Component
 public class DtoMapper {
-    public GameResponseDto toGameResponseDto(GameDto gameDto, TimeToBeatDto timeToBeatDto) {
+    public GameResponseDto toGameResponseDto(GameDto gameDto, Boolean isInLibrary, TimeToBeatDto timeToBeatDto) {
         LocalDate releaseDate = gameDto.releaseDate() != null
                 ? Instant.ofEpochSecond(gameDto.releaseDate()).atZone(ZoneId.systemDefault()).toLocalDate()
                 : LocalDate.EPOCH;
@@ -47,6 +47,7 @@ public class DtoMapper {
 
         return new GameResponseDto(
                 null,
+                Long.valueOf(gameDto.id()),
                 gameDto.name(),
                 lengthNormal,
                 lengthComplete,
@@ -62,7 +63,8 @@ public class DtoMapper {
                 GameTier.NONE,
                 GameStatus.UNKNOWN,
                 screenshotUrls,
-                platforms
+                platforms,
+                isInLibrary
         );
     }
 
@@ -91,6 +93,7 @@ public class DtoMapper {
     public GameResponseDto toGameResponseDto(Game game) {
         return new GameResponseDto(
                 game.getId(),
+                game.getIgdbId(),
                 game.getName(),
                 game.getLengthNormal(),
                 game.getLengthComplete(),
@@ -106,7 +109,8 @@ public class DtoMapper {
                 game.getTierValue(),
                 game.getStatus(),
                 game.getScreenshotUrls(),
-                game.getPlatforms()
+                game.getPlatforms(),
+                true
         );
     }
 

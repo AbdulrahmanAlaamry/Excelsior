@@ -1,5 +1,6 @@
 package dev.abdulrahman.excelsior.integration;
 
+import dev.abdulrahman.excelsior.persistence.GameRepository;
 import dev.abdulrahman.excelsior.presentation.exception.GameNotFoundException;
 import dev.abdulrahman.excelsior.business.game.GameResponseDto;
 import dev.abdulrahman.excelsior.integration.auth.AuthService;
@@ -20,6 +21,7 @@ public class ClientService {
     private final String apiUrl;
     private final AuthService authService;
     private final DtoMapper mapper;
+    private final GameRepository repository;
     private final RestClient restClient;
     private String cachedToken = null;
 
@@ -27,12 +29,14 @@ public class ClientService {
             @Value("${igdb.client-id}") String clientId,
             @Value("${igdb.api-url}") String apiUrl,
             AuthService authService,
-            DtoMapper mapper
+            DtoMapper mapper,
+            GameRepository repository
     ) {
         this.clientId = clientId;
         this.apiUrl = apiUrl;
         this.authService = authService;
         this.mapper = mapper;
+        this.repository = repository;
         this.restClient = RestClient.create();
     }
 
@@ -60,7 +64,8 @@ public class ClientService {
         return Arrays.stream(gameResponse)
                 .map(gameDto -> {
                     TimeToBeatDto timeToBeatDto = getTimeToBeat(gameDto.id());
-                    return mapper.toGameResponseDto(gameDto, timeToBeatDto);
+                    Boolean isInLibrary = repository.existsByIgdbId(Long.valueOf(gameDto.id()));
+                    return mapper.toGameResponseDto(gameDto, isInLibrary, timeToBeatDto);
                 })
                 .toList();
     }
