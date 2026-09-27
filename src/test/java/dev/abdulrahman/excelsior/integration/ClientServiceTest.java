@@ -102,7 +102,7 @@ class ClientServiceTest {
 
         GameResponseDto expectedDto = new GameResponseDto(1L, 100L, "Awesome Game", 10.0, 20.0,
                 LocalDate.of(2023, 10, 15), "http://example.com/cover.jpg",
-                85.5, 120, "A great storyline", "A short summary", "engine", List.of("Action"), List.of("Sony"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), false);
+                85.5, 120, "A great storyline", "A short summary", "engine", List.of("Action"), List.of("Sony"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), false, 0);
         when(mapper.toGameResponseDto(any(GameDto.class), eq(false), any(TimeToBeatDto.class))).thenReturn(expectedDto);
 
         List<GameResponseDto> result = clientService.searchGames(searchQuery, 1);

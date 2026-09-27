@@ -69,7 +69,7 @@ class GameServiceTest {
     void findGamesDynamically_ReturnsListOfGames() {
         Page<Game> page = new PageImpl<>(List.of(game));
         when(gameRepository.findDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(page);
-        GameResponseDto responseDto = new GameResponseDto(1L, 123L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13), "cover", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), true);
+        GameResponseDto responseDto = new GameResponseDto(1L, 123L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13), "cover", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), true, 0);
         when(mapper.toGameResponseDto(game)).thenReturn(responseDto);
 
         Page<GameResponseDto> results = gameService.findGamesDynamically(
@@ -84,7 +84,7 @@ class GameServiceTest {
     @Test
     void getGameById_GameExists_ReturnsGame() {
         when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
-        GameResponseDto responseDto = new GameResponseDto(1L, 123L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13), "cover", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), true);
+        GameResponseDto responseDto = new GameResponseDto(1L, 123L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13), "cover", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), true, 0);
         when(mapper.toGameResponseDto(game)).thenReturn(responseDto);
 
         GameResponseDto result = gameService.getGameById(1L);
@@ -155,5 +155,25 @@ class GameServiceTest {
         assertEquals(1L, stats.gamesByStatus().get(GameStatus.PLAYING));
         assertEquals(1L, stats.gamesByTier().get(GameTier.S));
         assertEquals(1L, stats.gamesByTier().get(GameTier.A));
+    }
+    @Test
+    void updateTierPositionForAll_UpdatesPositions() {
+        GameTierPositionPatchDto dto1 = new GameTierPositionPatchDto(1L, GameTier.S, 1);
+        GameTierPositionPatchDto dto2 = new GameTierPositionPatchDto(124L, GameTier.A, 0);
+        List<GameTierPositionPatchDto> dtos = List.of(dto1, dto2);
+
+        Game game2 = new Game(124L, "Zelda", 20.0, 30.0, LocalDate.of(1986, 2, 21),
+                "cover2", 98.0, 2000, "synopsis", "desc", "engine", List.of("Adventure"), List.of("Nintendo"), GameTier.A, GameStatus.PLAYING, List.of("url2"), List.of("Switch"));
+        when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+        when(gameRepository.findById(124L)).thenReturn(Optional.of(game2));
+
+        gameService.updateTierPositionForAll(dtos);
+
+        verify(gameRepository, times(1)).save(game);
+        verify(gameRepository, times(1)).save(game2);
+        assertEquals(GameTier.S, game.getTierValue());
+        assertEquals(1, game.getTierPosition());
+        assertEquals(GameTier.A, game2.getTierValue());
+        assertEquals(0, game2.getTierPosition());
     }
 }

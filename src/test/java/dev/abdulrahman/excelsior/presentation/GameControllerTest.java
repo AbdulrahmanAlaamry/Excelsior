@@ -5,6 +5,7 @@ import dev.abdulrahman.excelsior.business.GameService;
 import dev.abdulrahman.excelsior.presentation.exception.GameNotFoundException;
 import dev.abdulrahman.excelsior.business.game.GameRequestDto;
 import dev.abdulrahman.excelsior.business.game.GameResponseDto;
+import dev.abdulrahman.excelsior.business.game.GameTierPositionPatchDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -93,7 +94,7 @@ class GameControllerTest {
 
     @Test
     void getAllGames_ReturnsGameList() throws Exception {
-        GameResponseDto responseDto = new GameResponseDto(1L, 123L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), true);
+        GameResponseDto responseDto = new GameResponseDto(1L, 123L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), true, 0);
         Page<GameResponseDto> page = new PageImpl<>(List.of(responseDto));
         when(gameService.findGamesDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(page);
 
@@ -128,7 +129,7 @@ class GameControllerTest {
 
     @Test
     void getGame_GameExists_ReturnsGame() throws Exception {
-        GameResponseDto responseDto = new GameResponseDto(1L, 123L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), true);
+        GameResponseDto responseDto = new GameResponseDto(1L, 123L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), true, 0);
         when(gameService.getGameById(1L)).thenReturn(responseDto);
 
         mockMvc.perform(get("/api/games/{id}", 1L))
@@ -216,7 +217,7 @@ class GameControllerTest {
 
     @Test
     void searchGame_ValidRequest_ReturnsGameResponseDto() throws Exception {
-        GameResponseDto responseDto = new GameResponseDto(1L, 123L, "God of War", 10.0, 15.0, LocalDate.of(2005, 3, 22), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Santa Monica"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), true);
+        GameResponseDto responseDto = new GameResponseDto(1L, 123L, "God of War", 10.0, 15.0, LocalDate.of(2005, 3, 22), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Santa Monica"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), true, 0);
         when(gameService.searchGame("God of War", null)).thenReturn(List.of(responseDto));
 
         mockMvc.perform(get("/api/games/search")
@@ -258,5 +259,18 @@ class GameControllerTest {
                 .andExpect(status().isOk());
 
         verify(gameService, times(1)).updateTier(1L, GameTier.S);
+    }
+    @Test
+    void patchTierPositions_ValidRequest_ReturnsOk() throws Exception {
+        GameTierPositionPatchDto dto1 = new GameTierPositionPatchDto(1L, GameTier.S, 1);
+        GameTierPositionPatchDto dto2 = new GameTierPositionPatchDto(2L, GameTier.A, 0);
+        List<GameTierPositionPatchDto> dtos = List.of(dto1, dto2);
+
+        mockMvc.perform(patch("/api/games/tier-positions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dtos)))
+                .andExpect(status().isOk());
+
+        verify(gameService, times(1)).updateTierPositionForAll(dtos);
     }
 }
