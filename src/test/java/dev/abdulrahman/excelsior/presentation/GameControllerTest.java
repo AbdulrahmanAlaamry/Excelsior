@@ -251,7 +251,7 @@ class GameControllerTest {
     }
 
     @Test
-    void updateTier_ValidRequest_ReturnsOk() throws Exception {
+    void patchGame_ValidRequest_ReturnsOk() throws Exception {
         mockMvc.perform(patch("/api/games/{id}", 1L)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"tier\": \"S\"}"))

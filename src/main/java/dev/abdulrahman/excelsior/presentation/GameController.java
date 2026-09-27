@@ -76,7 +76,7 @@ public class GameController {
     }
 
     @PatchMapping("/{id}")
-    public void updateTier(
+    public void patchGame(
             @Positive(message = INVALID_ID_MESSAGE)
             @PathVariable
             Long id,
