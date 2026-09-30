@@ -23,10 +23,10 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        // Allows any frontend running on your local network (or Kombai) to access the API without security blocks
+        // Allows any frontend running on your local network to access the API without security blocks
         registry.addMapping("/**")
                 .allowedOriginPatterns("*") 
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
     }

@@ -10,6 +10,7 @@ import dev.abdulrahman.excelsior.mapper.DtoMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 import java.util.Arrays;
@@ -17,7 +18,7 @@ import java.util.List;
 
 @Service
 public class ClientService {
-    private static final Integer DEFAULT_API_QUERY_LIMIT = 5;
+    private static final Integer DEFAULT_API_QUERY_LIMIT = 16;
     private final String clientId;
     private final String apiUrl;
     private final AuthService authService;
@@ -85,6 +86,15 @@ public class ClientService {
     }
 
     private <T> T initiateRequest(String endpoint, String body, Class<T> responseType) {
+        try {
+            return executeRequest(endpoint, body, responseType);
+        } catch (HttpClientErrorException.Unauthorized e) {
+            cachedToken = null;
+            return executeRequest(endpoint, body, responseType);
+        }
+    }
+
+    private <T> T executeRequest(String endpoint, String body, Class<T> responseType) {
         return restClient.post()
                 .uri(apiUrl + endpoint)
                 .header("Client-ID", clientId)
