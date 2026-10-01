@@ -67,8 +67,13 @@ public class ClientService {
         return Arrays.stream(gameResponse)
                 .map(gameDto -> {
                     TimeToBeatDto timeToBeatDto = getTimeToBeat(gameDto.id());
-                    Boolean isInLibrary = repository.existsByIgdbId(Long.valueOf(gameDto.id()));
-                    return mapper.toGameResponseDto(gameDto, isInLibrary, timeToBeatDto);
+
+                    Long igdbId = Long.valueOf(gameDto.id());
+                    boolean isInLibrary = repository.existsByIgdbId(igdbId);
+
+                    return isInLibrary
+                            ? mapper.toGameResponseDto(repository.findByIgdbId(igdbId).orElseThrow(GameNotFoundException::new))
+                            : mapper.toGameResponseDto(gameDto, false, timeToBeatDto);
                 })
                 .toList();
     }
