@@ -96,7 +96,7 @@ class GameControllerTest {
     void getAllGames_ReturnsGameList() throws Exception {
         GameResponseDto responseDto = new GameResponseDto(1L, 123L, "Halo", 10.0, 15.0, LocalDate.of(2001, 11, 15), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), true, 0);
         Page<GameResponseDto> page = new PageImpl<>(List.of(responseDto));
-        when(gameService.findGamesDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(page);
+        when(gameService.findGamesDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(page);
 
         mockMvc.perform(get("/api/games"))
                 .andExpect(status().isOk())
@@ -105,7 +105,7 @@ class GameControllerTest {
                 .andExpect(jsonPath("$.content[0].name").value("Halo"))
                 .andExpect(jsonPath("$.content[0].length_normal").value(10.0));
 
-        verify(gameService, times(1)).findGamesDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+        verify(gameService, times(1)).findGamesDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
     }
 
     @Test
@@ -218,7 +218,7 @@ class GameControllerTest {
     @Test
     void searchGame_ValidRequest_ReturnsGameResponseDto() throws Exception {
         GameResponseDto responseDto = new GameResponseDto(1L, 123L, "God of War", 10.0, 15.0, LocalDate.of(2005, 3, 22), "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Santa Monica"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), true, 0);
-        when(gameService.searchGame("God of War", null)).thenReturn(List.of(responseDto));
+        when(gameService.searchGame("God of War", null, null)).thenReturn(List.of(responseDto));
 
         mockMvc.perform(get("/api/games/search")
                 .param("query", "God of War")
@@ -227,7 +227,7 @@ class GameControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("God of War"));
 
-        verify(gameService, times(1)).searchGame("God of War", null);
+        verify(gameService, times(1)).searchGame("God of War", null, null);
     }
 
     @Test
@@ -248,7 +248,7 @@ class GameControllerTest {
                 .andExpect(jsonPath("$.title").value("Too Many Requests"))
                 .andExpect(jsonPath("$.detail").value("Please wait a minute before searching again."));
         
-        verify(gameService, times(5)).searchGame("God of War", null);
+        verify(gameService, times(5)).searchGame("God of War", null, null);
     }
 
     @Test

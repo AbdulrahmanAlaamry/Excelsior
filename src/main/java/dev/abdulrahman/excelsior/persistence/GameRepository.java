@@ -31,7 +31,10 @@ public interface GameRepository extends JpaRepository<Game, Long> {
            "(:minDate IS NULL OR g.releaseDate >= :minDate) AND " +
            "(:maxDate IS NULL OR g.releaseDate <= :maxDate) AND " +
            "(:minYear IS NULL OR YEAR(g.releaseDate) >= :minYear) AND " +
-           "(:maxYear IS NULL OR YEAR(g.releaseDate) <= :maxYear)")
+           "(:maxYear IS NULL OR YEAR(g.releaseDate) <= :maxYear) AND " +
+           "(:tier IS NULL OR g.tierValue = :tier) AND " +
+           "(:status IS NULL OR g.status = :status) AND " +
+           "(:platformContains IS NULL OR :platformContains MEMBER OF g.platforms)")
     Page<Game> findDynamically(
             @Param("minRating") Double minRating,
             @Param("maxRating") Double maxRating,
@@ -45,6 +48,9 @@ public interface GameRepository extends JpaRepository<Game, Long> {
             @Param("maxDate") LocalDate maxDate,
             @Param("minYear") Integer minYear,
             @Param("maxYear") Integer maxYear,
+            @Param("tier") dev.abdulrahman.excelsior.business.game.GameTier tier,
+            @Param("status") dev.abdulrahman.excelsior.business.game.GameStatus status,
+            @Param("platformContains") String platformContains,
             Pageable pageable
     );
 }

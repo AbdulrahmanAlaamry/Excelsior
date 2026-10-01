@@ -42,6 +42,13 @@ public record GameFilterDto(
         Integer minYear,
 
         @Min(value = 0, message = "Maximum release year cannot be negative.")
-        Integer maxYear
+        Integer maxYear,
+
+        GameTier tier,
+
+        GameStatus status,
+
+        @Size(min = 1, message = "'platform_contains' parameter must contain at least 1 character.")
+        String platformContains
 ) {
 }

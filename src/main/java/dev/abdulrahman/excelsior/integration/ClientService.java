@@ -13,12 +13,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ClientService {
     private static final Integer DEFAULT_API_QUERY_LIMIT = 16;
+    private static final Integer DEFAULT_API_QUERY_OFFSET = 0;
+
     private final String clientId;
     private final String apiUrl;
     private final AuthService authService;
@@ -43,9 +45,13 @@ public class ClientService {
     }
 
     @Cacheable("igdb-search")
-    public List<GameResponseDto> searchGames(String query, Integer limit) {
+    public List<GameResponseDto> searchGames(String query, Integer limit, Integer offset) {
         if (limit == null) {
             limit = DEFAULT_API_QUERY_LIMIT;
+        }
+
+        if (offset == null) {
+            offset = DEFAULT_API_QUERY_OFFSET;
         }
 
         GameDto[] gameResponse = initiateRequest(
@@ -56,7 +62,8 @@ public class ClientService {
                         "screenshots.url, screenshots.width, screenshots.height, platforms.name; " +
                         "search \"" + query + "\";" +
                         "where game_type = (0, 8, 9) & version_parent = null;" +
-                        "limit " + limit + ";",
+                        "limit " + limit + ";" +
+                        "offset " + offset + ";",
                 GameDto[].class
         );
 
@@ -64,30 +71,46 @@ public class ClientService {
             throw new GameNotFoundException("Could not find a game with the query \"" + query + "\"");
         }
 
+        Map<Integer, TimeToBeatDto> timeToBeatMap = getTimeToBeat(
+                Arrays.stream(gameResponse)
+                        .map(GameDto::id)
+                        .collect(Collectors.toSet())
+        );
+
         return Arrays.stream(gameResponse)
                 .map(gameDto -> {
-                    TimeToBeatDto timeToBeatDto = getTimeToBeat(gameDto.id());
-
-                    Long igdbId = Long.valueOf(gameDto.id());
-                    boolean isInLibrary = repository.existsByIgdbId(igdbId);
+                    Integer igdbId = gameDto.id();
+                    Long igdbIdLong = Long.valueOf(igdbId);
+                    boolean isInLibrary = repository.existsByIgdbId(igdbIdLong);
 
                     return isInLibrary
-                            ? mapper.toGameResponseDto(repository.findByIgdbId(igdbId).orElseThrow(GameNotFoundException::new))
-                            : mapper.toGameResponseDto(gameDto, false, timeToBeatDto);
+                            ? mapper.toGameResponseDto(repository.findByIgdbId(igdbIdLong).orElseThrow(GameNotFoundException::new))
+                            : mapper.toGameResponseDto(gameDto, false, timeToBeatMap.get(igdbId));
                 })
                 .toList();
     }
 
-    public TimeToBeatDto getTimeToBeat(Integer igdbId) {
+    public Map<Integer, TimeToBeatDto> getTimeToBeat(Set<Integer> igdbIds) {
+        Set<String> igdbIdStrings = igdbIds.stream()
+                .map(String::valueOf)
+                .collect(Collectors.toSet());
+
+        String ids = String.join(", ", igdbIdStrings);
+
         TimeToBeatDto[] response = initiateRequest(
                 "/game_time_to_beats",
-                "fields completely, normally; where game_id = " + igdbId + ";",
+                "fields game_id, completely, normally; where game_id = (" + ids + "); limit 500;",
                 TimeToBeatDto[].class
         );
 
-        return (response != null && response.length > 0)
-                ? response[0]
-                : new TimeToBeatDto(0, 0);
+        if (response == null || response.length == 0) {
+            return Map.of();
+        }
+
+        Map<Integer, TimeToBeatDto> timeToBeatMap = new HashMap<>();
+        Arrays.stream(response).forEach(dto -> timeToBeatMap.put(dto.id(), dto));
+
+        return timeToBeatMap;
     }
 
     private <T> T initiateRequest(String endpoint, String body, Class<T> responseType) {

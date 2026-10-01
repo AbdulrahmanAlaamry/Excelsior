@@ -68,17 +68,17 @@ class GameServiceTest {
     @Test
     void findGamesDynamically_ReturnsListOfGames() {
         Page<Game> page = new PageImpl<>(List.of(game));
-        when(gameRepository.findDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(page);
+        when(gameRepository.findDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(page);
         GameResponseDto responseDto = new GameResponseDto(1L, 123L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13), "cover", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), true, 0);
         when(mapper.toGameResponseDto(game)).thenReturn(responseDto);
 
         Page<GameResponseDto> results = gameService.findGamesDynamically(
-                null, null, null, null, null, null, null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
         assertEquals(1, results.getContent().size());
         assertEquals("Super Mario", results.getContent().get(0).name());
         assertEquals(15.0, results.getContent().get(0).lengthNormal());
-        verify(gameRepository, times(1)).findDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+        verify(gameRepository, times(1)).findDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
     }
 
     @Test

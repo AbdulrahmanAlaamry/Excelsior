@@ -46,7 +46,7 @@ class DtoMapperTest {
                 "A great storyline", "A short summary", 85.5, 120, engines, genres, companies, screenshots, platforms);
 
         // normally = 36000 seconds (10 hours), completely = 72000 seconds (20 hours)
-        TimeToBeatDto timeToBeatDto = new TimeToBeatDto(72000, 36000);
+        TimeToBeatDto timeToBeatDto = new TimeToBeatDto(1, 72000, 36000);
 
         GameResponseDto result = mapper.toGameResponseDto(gameDto, false, timeToBeatDto);
 
@@ -70,7 +70,7 @@ class DtoMapperTest {
     @Test
     void toGameResponseDto_NullFields_MapsSafely() {
         GameDto gameDto = new GameDto(1, new ImageDto(null, null, null), null, null, null, null, null, null, null, null, null, null, null, null);
-        TimeToBeatDto timeToBeatDto = new TimeToBeatDto(null, null);
+        TimeToBeatDto timeToBeatDto = new TimeToBeatDto(1, null, null);
 
         GameResponseDto result = mapper.toGameResponseDto(gameDto, false, timeToBeatDto);
 

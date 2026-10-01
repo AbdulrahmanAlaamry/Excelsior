@@ -3,6 +3,7 @@ package dev.abdulrahman.excelsior.presentation;
 import dev.abdulrahman.excelsior.business.GameService;
 import dev.abdulrahman.excelsior.business.game.*;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import org.springframework.data.domain.Page;
@@ -33,9 +34,13 @@ public class GameController {
 
             @Positive(message = "Search result limit must be greater than 0.")
             @RequestParam(required = false)
-            Integer limit
+            Integer limit,
+
+            @Min(value = 0, message = "Search result offset must not be negative.")
+            @RequestParam(required = false)
+            Integer offset
     ) {
-        return this.service.searchGame(query, limit);
+        return this.service.searchGame(query, limit, offset);
     }
 
     @PostMapping
@@ -54,7 +59,8 @@ public class GameController {
         return this.service.findGamesDynamically(
                 dto.minRating(), dto.maxRating(), dto.nameContains(), dto.genreContains(),
                 dto.minLengthNormal(), dto.maxLengthNormal(), dto.minLengthComplete(), dto.maxLengthComplete(),
-                dto.minDate(), dto.maxDate(), dto.minYear(), dto.maxYear(), pageable
+                dto.minDate(), dto.maxDate(), dto.minYear(), dto.maxYear(), 
+                dto.tier(), dto.status(), dto.platformContains(), pageable
         );
     }
 

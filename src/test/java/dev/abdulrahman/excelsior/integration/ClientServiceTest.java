@@ -23,6 +23,7 @@ import dev.abdulrahman.excelsior.business.game.GameStatus;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -82,6 +83,7 @@ class ClientServiceTest {
         String ttbResponseBody = """
                 [
                     {
+                        "game_id": 100,
                         "completely": 72000,
                         "normally": 36000
                     }
@@ -105,7 +107,7 @@ class ClientServiceTest {
                 85.5, 120, "A great storyline", "A short summary", "engine", List.of("Action"), List.of("Sony"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), false, 0);
         when(mapper.toGameResponseDto(any(GameDto.class), eq(false), any(TimeToBeatDto.class))).thenReturn(expectedDto);
 
-        List<GameResponseDto> result = clientService.searchGames(searchQuery, 1);
+        List<GameResponseDto> result = clientService.searchGames(searchQuery, 1, 0);
 
         assertEquals(List.of(expectedDto), result);
         verify(mapper, times(1)).toGameResponseDto(any(GameDto.class), eq(false), any(TimeToBeatDto.class));
@@ -119,7 +121,7 @@ class ClientServiceTest {
 
         var req2 = mockWebServer.takeRequest();
         assertEquals("/api/v4/game_time_to_beats", req2.getPath());
-        assertTrue(req2.getBody().readUtf8().contains("where game_id = 100;"));
+        assertTrue(req2.getBody().readUtf8().contains("where game_id = (100);"));
     }
 
     @Test
@@ -133,7 +135,7 @@ class ClientServiceTest {
                 .setBody("[]")
                 .addHeader("Content-Type", "application/json"));
 
-        assertThrows(GameNotFoundException.class, () -> clientService.searchGames(searchQuery, 10));
+        assertThrows(GameNotFoundException.class, () -> clientService.searchGames(searchQuery, 10, 0));
         verify(mapper, never()).toGameResponseDto(any(), anyBoolean(), any());
     }
 
@@ -148,7 +150,7 @@ class ClientServiceTest {
                 .setBody("")
                 .addHeader("Content-Type", "application/json"));
 
-        assertThrows(GameNotFoundException.class, () -> clientService.searchGames(searchQuery, 10));
+        assertThrows(GameNotFoundException.class, () -> clientService.searchGames(searchQuery, 10, 0));
     }
 
     @Test
@@ -160,10 +162,9 @@ class ClientServiceTest {
                 .setBody("[]")
                 .addHeader("Content-Type", "application/json"));
 
-        TimeToBeatDto result = clientService.getTimeToBeat(999);
+        Map<Integer, TimeToBeatDto> result = clientService.getTimeToBeat(java.util.Set.of(999));
 
         assertNotNull(result);
-        assertEquals(0, result.completely());
-        assertEquals(0, result.normally());
+        assertTrue(result.isEmpty());
     }
 }

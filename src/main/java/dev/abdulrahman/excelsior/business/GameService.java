@@ -29,8 +29,8 @@ public class GameService {
         this.mapper = mapper;
     }
 
-    public List<GameResponseDto> searchGame(String query, Integer limit) {
-        return clientService.searchGames(query, limit);
+    public List<GameResponseDto> searchGame(String query, Integer limit, Integer offset) {
+        return clientService.searchGames(query, limit, offset);
     }
 
     public void addGame(GameRequestDto dto) {
@@ -84,12 +84,13 @@ public class GameService {
     public Page<GameResponseDto> findGamesDynamically(
             Double minRating, Double maxRating, String nameContains, String genreContains,
             Double minLengthNormal, Double maxLengthNormal, Double minLengthComplete, Double maxLengthComplete, 
-            LocalDate minDate, LocalDate maxDate, Integer minYear, Integer maxYear, Pageable pageable
+            LocalDate minDate, LocalDate maxDate, Integer minYear, Integer maxYear, 
+            GameTier tier, GameStatus status, String platformContains, Pageable pageable
     ) {
         return repository.findDynamically(
                 minRating, maxRating, nameContains, genreContains,
                 minLengthNormal, maxLengthNormal, minLengthComplete, maxLengthComplete, 
-                minDate, maxDate, minYear, maxYear, pageable
+                minDate, maxDate, minYear, maxYear, tier, status, platformContains, pageable
         ).map(mapper::toGameResponseDto);
     }
     

@@ -19,13 +19,17 @@ public class DtoMapper {
                 ? Instant.ofEpochSecond(gameDto.releaseDate()).atZone(ZoneId.systemDefault()).toLocalDate()
                 : LocalDate.EPOCH;
 
-        Double lengthNormal = timeToBeatDto.normally() != null
-                ? secondsToHours(timeToBeatDto.normally())
-                : 0.0;
+        Double lengthNormal = 0.0;
 
-        Double lengthComplete = timeToBeatDto.completely() != null
-                ? secondsToHours(timeToBeatDto.completely())
-                : 0.0;
+        Double lengthComplete = 0.0;
+
+        if (timeToBeatDto != null) {
+            Integer normally = timeToBeatDto.normally();
+            Integer completely = timeToBeatDto.completely();
+
+            if (normally != null) lengthNormal = secondsToHours(normally);
+            if (completely != null) lengthComplete = secondsToHours(completely);
+        }
 
         String coverUrl = gameDto.cover() != null
                 ? formatImageUrl(gameDto.cover().url())
