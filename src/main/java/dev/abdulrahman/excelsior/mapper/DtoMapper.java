@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
@@ -58,7 +59,7 @@ public class DtoMapper {
                 releaseDate,
                 coverUrl,
                 round(gameDto.rating()),
-                gameDto.ratingCount(),
+                Objects.requireNonNullElse(gameDto.ratingCount(), 0),
                 truncate(gameDto.storyline()),
                 truncate(gameDto.summary()),
                 primaryEngine,
@@ -131,7 +132,7 @@ public class DtoMapper {
     }
 
     private Double round(Double d) {
-        return d != null ? Math.round(d * 10.0) / 10.0 : null;
+        return d != null ? Math.round(d * 10.0) / 10.0 : 0.0;
     }
 
     public <T, U> T[] parseArrayToArray(U[] arr, Function<U, T> mapper, IntFunction<T[]> arrayGenerator) {

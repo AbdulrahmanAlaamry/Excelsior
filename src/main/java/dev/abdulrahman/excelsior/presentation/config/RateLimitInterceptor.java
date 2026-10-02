@@ -19,10 +19,10 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
 
     private Bucket createNewBucket() {
-        // Limit: 5 requests max, refills 5 requests every 1 minute
+        // Limit: 20 requests max, refills 20 requests every 1 minute
         Bandwidth limit = Bandwidth.builder()
-                .capacity(5)
-                .refillGreedy(5, Duration.ofMinutes(1))
+                .capacity(20)
+                .refillGreedy(20, Duration.ofMinutes(1))
                 .build();
         
         return Bucket.builder()
@@ -46,7 +46,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
         // If no tokens are left, reject the request with HTTP 429
         response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
         response.setContentType("application/json");
-        response.getWriter().write("{\"title\": \"Too Many Requests\", \"detail\": \"Please wait a minute before searching again.\"}");
+        response.getWriter().write("{\"title\": \"Too Many Requests\", \"detail\": \"You are searching too fast. Please wait a few seconds before trying again.\"}");
         return false;
     }
 }
