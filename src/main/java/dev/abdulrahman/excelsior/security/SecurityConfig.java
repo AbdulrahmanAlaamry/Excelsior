@@ -27,13 +27,12 @@ public class SecurityConfig {
                         .requestMatchers(PathRequest.toH2Console()).permitAll()
                         .anyRequest().authenticated()
         )
-                .httpBasic(Customizer.withDefaults()) // For testing
-                .csrf(CsrfConfigurer::disable) // For testing
-
                 // H2 Console
                 .csrf(csrf -> csrf.ignoringRequestMatchers(PathRequest.toH2Console()))
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
 
+                .httpBasic(Customizer.withDefaults()) // For testing
+                .csrf(CsrfConfigurer::disable) // For testing
                 .build();
     }
 }
