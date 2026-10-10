@@ -1,10 +1,15 @@
 package dev.abdulrahman.excelsior.business;
 
 import dev.abdulrahman.excelsior.business.game.*;
+import dev.abdulrahman.excelsior.business.game.dto.GameRequestDto;
+import dev.abdulrahman.excelsior.business.game.dto.GameResponseDto;
+import dev.abdulrahman.excelsior.business.game.dto.GameStatsDto;
+import dev.abdulrahman.excelsior.business.game.dto.GameTierPositionPatchDto;
 import dev.abdulrahman.excelsior.presentation.exception.GameNotFoundException;
 import dev.abdulrahman.excelsior.persistence.GameRepository;
 import dev.abdulrahman.excelsior.mapper.DtoMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -12,6 +17,11 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import dev.abdulrahman.excelsior.business.user.User;
+import dev.abdulrahman.excelsior.persistence.UserRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -31,6 +41,9 @@ class GameServiceTest {
     private GameRepository gameRepository;
 
     @Mock
+    private UserRepository userRepository;
+
+    @Mock
     private DtoMapper mapper;
 
     @InjectMocks
@@ -41,11 +54,21 @@ class GameServiceTest {
 
     private Game game;
     private GameRequestDto requestDto;
+    private User testUser;
 
     @BeforeEach
     void setUp() {
+        testUser = new User("testuser", "pass");
+        Authentication authentication = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        lenient().when(authentication.isAuthenticated()).thenReturn(true);
+        lenient().when(authentication.getName()).thenReturn("testuser");
+        lenient().when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+
         game = new Game(123L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13),
-                "cover_url", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"));
+                "cover_url", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), testUser);
         game.setId(1L);
 
         requestDto = new GameRequestDto(123L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13),
@@ -54,7 +77,7 @@ class GameServiceTest {
 
     @Test
     void addGame_SavesGame() {
-        when(mapper.toGameEntity(requestDto)).thenReturn(game);
+        when(mapper.toGameEntity(requestDto, testUser)).thenReturn(game);
         
         gameService.addGame(requestDto);
 
@@ -68,7 +91,7 @@ class GameServiceTest {
     @Test
     void findGamesDynamically_ReturnsListOfGames() {
         Page<Game> page = new PageImpl<>(List.of(game));
-        when(gameRepository.findDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(page);
+        when(gameRepository.findDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(page);
         GameResponseDto responseDto = new GameResponseDto(1L, 123L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13), "cover", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), true, 0);
         when(mapper.toGameResponseDto(game)).thenReturn(responseDto);
 
@@ -78,12 +101,12 @@ class GameServiceTest {
         assertEquals(1, results.getContent().size());
         assertEquals("Super Mario", results.getContent().get(0).name());
         assertEquals(15.0, results.getContent().get(0).lengthNormal());
-        verify(gameRepository, times(1)).findDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+        verify(gameRepository, times(1)).findDynamically(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
     }
 
     @Test
     void getGameById_GameExists_ReturnsGame() {
-        when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+        when(gameRepository.findByUserAndId(testUser, 1L)).thenReturn(Optional.of(game));
         GameResponseDto responseDto = new GameResponseDto(1L, 123L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13), "cover", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), true, 0);
         when(mapper.toGameResponseDto(game)).thenReturn(responseDto);
 
@@ -91,20 +114,20 @@ class GameServiceTest {
 
         assertNotNull(result);
         assertEquals("Super Mario", result.name());
-        verify(gameRepository, times(1)).findById(1L);
+        verify(gameRepository, times(1)).findByUserAndId(testUser, 1L);
     }
 
     @Test
     void getGameById_GameDoesNotExist_ThrowsException() {
-        when(gameRepository.findById(99L)).thenReturn(Optional.empty());
+        when(gameRepository.findByUserAndId(testUser, 99L)).thenReturn(Optional.empty());
 
         assertThrows(GameNotFoundException.class, () -> gameService.getGameById(99L));
-        verify(gameRepository, times(1)).findById(99L);
+        verify(gameRepository, times(1)).findByUserAndId(testUser, 99L);
     }
 
     @Test
     void updateGame_GameExists_UpdatesAndSavesGame() {
-        when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+        when(gameRepository.findByUserAndId(testUser, 1L)).thenReturn(Optional.of(game));
         GameRequestDto updateDto = new GameRequestDto(123L, "Super Mario Bros.", 20.0, 25.0, LocalDate.of(1985, 9, 13),
                 "new_cover", 96.0, 1500, "new_synopsis", "new_desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"));
 
@@ -117,7 +140,7 @@ class GameServiceTest {
 
     @Test
     void updateGame_GameDoesNotExist_ThrowsException() {
-        when(gameRepository.findById(2L)).thenReturn(Optional.empty());
+        when(gameRepository.findByUserAndId(testUser, 2L)).thenReturn(Optional.empty());
 
         assertThrows(GameNotFoundException.class, () -> gameService.updateGame(2L, requestDto));
         verify(gameRepository, never()).save(any());
@@ -125,8 +148,7 @@ class GameServiceTest {
 
     @Test
     void deleteGame_GameExists_DeletesGame() {
-        when(gameRepository.existsById(1L)).thenReturn(true);
-        when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+        when(gameRepository.findByUserAndId(testUser, 1L)).thenReturn(Optional.of(game));
 
         gameService.deleteGame(1L);
 
@@ -135,7 +157,7 @@ class GameServiceTest {
 
     @Test
     void deleteGame_GameDoesNotExist_ThrowsException() {
-        when(gameRepository.existsById(2L)).thenReturn(false);
+        when(gameRepository.findByUserAndId(testUser, 2L)).thenReturn(Optional.empty());
 
         assertThrows(GameNotFoundException.class, () -> gameService.deleteGame(2L));
         verify(gameRepository, never()).delete(any());
@@ -144,8 +166,8 @@ class GameServiceTest {
     @Test
     void getStats_ReturnsGameStats() {
         Game game2 = new Game(124L, "Zelda", 20.0, 30.0, LocalDate.of(1986, 2, 21),
-                "cover2", 98.0, 2000, "synopsis", "desc", "engine", List.of("Adventure"), List.of("Nintendo"), GameTier.A, GameStatus.PLAYING, List.of("url2"), List.of("Switch"));
-        when(gameRepository.findAll()).thenReturn(List.of(game, game2));
+                "cover2", 98.0, 2000, "synopsis", "desc", "engine", List.of("Adventure"), List.of("Nintendo"), GameTier.A, GameStatus.PLAYING, List.of("url2"), List.of("Switch"), testUser);
+        when(gameRepository.findAllByUser(testUser)).thenReturn(List.of(game, game2));
 
         GameStatsDto stats = gameService.getStats();
 
@@ -163,9 +185,9 @@ class GameServiceTest {
         List<GameTierPositionPatchDto> dtos = List.of(dto1, dto2);
 
         Game game2 = new Game(124L, "Zelda", 20.0, 30.0, LocalDate.of(1986, 2, 21),
-                "cover2", 98.0, 2000, "synopsis", "desc", "engine", List.of("Adventure"), List.of("Nintendo"), GameTier.A, GameStatus.PLAYING, List.of("url2"), List.of("Switch"));
-        when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
-        when(gameRepository.findById(124L)).thenReturn(Optional.of(game2));
+                "cover2", 98.0, 2000, "synopsis", "desc", "engine", List.of("Adventure"), List.of("Nintendo"), GameTier.A, GameStatus.PLAYING, List.of("url2"), List.of("Switch"), testUser);
+        when(gameRepository.findByUserAndId(testUser, 1L)).thenReturn(Optional.of(game));
+        when(gameRepository.findByUserAndId(testUser, 124L)).thenReturn(Optional.of(game2));
 
         gameService.updateTierPositionForAll(dtos);
 

@@ -1,6 +1,9 @@
 package dev.abdulrahman.excelsior.mapper;
 
 import dev.abdulrahman.excelsior.business.game.*;
+import dev.abdulrahman.excelsior.business.game.dto.GameRequestDto;
+import dev.abdulrahman.excelsior.business.game.dto.GameResponseDto;
+import dev.abdulrahman.excelsior.business.user.User;
 import dev.abdulrahman.excelsior.integration.dto.*;
 import org.springframework.stereotype.Component;
 
@@ -74,7 +77,7 @@ public class DtoMapper {
         );
     }
 
-    public Game toGameEntity(GameRequestDto dto) {
+    public Game toGameEntity(GameRequestDto dto, User user) {
         return new Game(
                 dto.igdbId(),
                 dto.name(),
@@ -92,7 +95,8 @@ public class DtoMapper {
                 dto.tier(),
                 dto.status(),
                 dto.screenshotUrls(),
-                dto.platforms()
+                dto.platforms(),
+                user
         );
     }
 

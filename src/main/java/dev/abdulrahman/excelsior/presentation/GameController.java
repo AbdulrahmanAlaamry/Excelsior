@@ -1,7 +1,7 @@
 package dev.abdulrahman.excelsior.presentation;
 
-import dev.abdulrahman.excelsior.business.GameService;
-import dev.abdulrahman.excelsior.business.game.*;
+import dev.abdulrahman.excelsior.business.game.GameService;
+import dev.abdulrahman.excelsior.business.game.dto.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

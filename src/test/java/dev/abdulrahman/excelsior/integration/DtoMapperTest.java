@@ -1,6 +1,6 @@
 package dev.abdulrahman.excelsior.integration;
 
-import dev.abdulrahman.excelsior.business.game.GameResponseDto;
+import dev.abdulrahman.excelsior.business.game.dto.GameResponseDto;
 import dev.abdulrahman.excelsior.integration.dto.ImageDto;
 import dev.abdulrahman.excelsior.integration.dto.GameDto;
 import dev.abdulrahman.excelsior.integration.dto.TimeToBeatDto;
@@ -80,8 +80,8 @@ class DtoMapperTest {
         assertEquals(0.0, result.lengthComplete());
         assertEquals(LocalDate.EPOCH, result.releaseDate());
         assertNull(result.coverUrl());
-        assertNull(result.rating());
-        assertNull(result.ratingCount());
+        assertEquals(0.0, result.rating());
+        assertEquals(0, result.ratingCount());
         assertNull(result.synopsis());
         assertNull(result.description());
         assertEquals("Unknown/Proprietary", result.primaryEngine());

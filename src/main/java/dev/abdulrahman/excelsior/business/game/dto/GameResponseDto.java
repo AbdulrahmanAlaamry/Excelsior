@@ -1,7 +1,9 @@
-package dev.abdulrahman.excelsior.business.game;
+package dev.abdulrahman.excelsior.business.game.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import dev.abdulrahman.excelsior.business.game.GameStatus;
+import dev.abdulrahman.excelsior.business.game.GameTier;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

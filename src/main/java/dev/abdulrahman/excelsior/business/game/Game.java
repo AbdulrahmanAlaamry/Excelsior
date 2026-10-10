@@ -1,5 +1,7 @@
 package dev.abdulrahman.excelsior.business.game;
 
+import dev.abdulrahman.excelsior.business.game.dto.GameRequestDto;
+import dev.abdulrahman.excelsior.business.user.User;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Formula;
 
@@ -16,12 +18,14 @@ public class Game {
     private Long id;
 
     private Long igdbId;
+
     private String name;
     private Double lengthNormal;
     private Double lengthComplete;
     private LocalDate releaseDate;
     private String coverUrl;
     private Double rating;
+
     private Integer ratingCount;
     @Column(length = 5000) private String synopsis;
     @Column(length = 5000) private String description;
@@ -41,6 +45,10 @@ public class Game {
     private Integer tier;
     private Integer tierPosition;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     protected Game() {}
 
     public Game(Long igdbId,
@@ -59,7 +67,8 @@ public class Game {
                 GameTier tierValue,
                 GameStatus status,
                 List<String> screenshotUrls,
-                List<String> platforms
+                List<String> platforms,
+                User user
     ) {
         setIgdbId(igdbId);
         setName(name);
@@ -79,6 +88,7 @@ public class Game {
         setScreenshotUrls(screenshotUrls);
         setPlatforms(platforms);
         setTierPosition(0);
+        setUser(user);
     }
 
     public Long getId() {
@@ -237,6 +247,14 @@ public class Game {
         this.tierPosition = tierPosition;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     public void setAll(GameRequestDto dto) {
         setIgdbId(dto.igdbId());
         setName(dto.name());
@@ -267,18 +285,5 @@ public class Game {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
-    }
-
-    @Override
-    public String toString() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        return name + " (ID: " + id + ")" +
-                "\nLength (average): " + lengthNormal +
-                "\nLength (100% completion): " + lengthComplete +
-                "\nRelease Date: " + releaseDate.format(formatter) +
-                "\nCover URL: " + coverUrl +
-                "\nRating (" + ratingCount + " ratings): " + rating +
-                "\nSynopsis: " + synopsis +
-                "\nDescription: " + description;
     }
 }

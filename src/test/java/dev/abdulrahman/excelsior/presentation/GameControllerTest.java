@@ -1,11 +1,11 @@
 package dev.abdulrahman.excelsior.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.abdulrahman.excelsior.business.GameService;
+import dev.abdulrahman.excelsior.business.game.GameService;
 import dev.abdulrahman.excelsior.presentation.exception.GameNotFoundException;
-import dev.abdulrahman.excelsior.business.game.GameRequestDto;
-import dev.abdulrahman.excelsior.business.game.GameResponseDto;
-import dev.abdulrahman.excelsior.business.game.GameTierPositionPatchDto;
+import dev.abdulrahman.excelsior.business.game.dto.GameRequestDto;
+import dev.abdulrahman.excelsior.business.game.dto.GameResponseDto;
+import dev.abdulrahman.excelsior.business.game.dto.GameTierPositionPatchDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -18,7 +18,7 @@ import java.util.List;
 import dev.abdulrahman.excelsior.presentation.exception.GameAlreadyExistsException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import dev.abdulrahman.excelsior.business.game.GameStatsDto;
+import dev.abdulrahman.excelsior.business.game.dto.GameStatsDto;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -232,7 +232,7 @@ class GameControllerTest {
 
     @Test
     void searchGame_RateLimitExceeded_ReturnsTooManyRequests() throws Exception {
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 20; i++) {
             mockMvc.perform(get("/api/games/search")
                     .param("query", "God of War")
                     .with(request -> { request.setRemoteAddr("2.2.2.2"); return request; })
@@ -246,9 +246,9 @@ class GameControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isTooManyRequests())
                 .andExpect(jsonPath("$.title").value("Too Many Requests"))
-                .andExpect(jsonPath("$.detail").value("Please wait a minute before searching again."));
+                .andExpect(jsonPath("$.detail").value("You are searching too fast. Please wait a few seconds before trying again."));
         
-        verify(gameService, times(5)).searchGame("God of War", null, null);
+        verify(gameService, times(20)).searchGame("God of War", null, null);
     }
 
     @Test

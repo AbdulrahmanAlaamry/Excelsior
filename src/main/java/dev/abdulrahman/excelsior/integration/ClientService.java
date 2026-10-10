@@ -1,8 +1,9 @@
 package dev.abdulrahman.excelsior.integration;
 
+import dev.abdulrahman.excelsior.business.user.User;
 import dev.abdulrahman.excelsior.persistence.GameRepository;
 import dev.abdulrahman.excelsior.presentation.exception.GameNotFoundException;
-import dev.abdulrahman.excelsior.business.game.GameResponseDto;
+import dev.abdulrahman.excelsior.business.game.dto.GameResponseDto;
 import dev.abdulrahman.excelsior.integration.auth.AuthService;
 import dev.abdulrahman.excelsior.integration.dto.GameDto;
 import dev.abdulrahman.excelsior.integration.dto.TimeToBeatDto;
@@ -45,7 +46,7 @@ public class ClientService {
     }
 
     @Cacheable("igdb-search")
-    public List<GameResponseDto> searchGames(String query, Integer limit, Integer offset) {
+    public List<GameResponseDto> searchGames(String query, Integer limit, Integer offset, User user) {
         if (limit == null) {
             limit = DEFAULT_API_QUERY_LIMIT;
         }
@@ -81,11 +82,15 @@ public class ClientService {
                 .map(gameDto -> {
                     Integer igdbId = gameDto.id();
                     Long igdbIdLong = Long.valueOf(igdbId);
-                    boolean isInLibrary = repository.existsByIgdbId(igdbIdLong);
 
-                    return isInLibrary
-                            ? mapper.toGameResponseDto(repository.findByIgdbId(igdbIdLong).orElseThrow(GameNotFoundException::new))
-                            : mapper.toGameResponseDto(gameDto, false, timeToBeatMap.get(igdbId));
+                    if (user != null && repository.existsByUserAndIgdbId(user, igdbIdLong)) {
+                        return mapper.toGameResponseDto(
+                                repository.findByUserAndIgdbId(user, igdbIdLong)
+                                        .orElseThrow(GameNotFoundException::new)
+                        );
+                    }
+
+                    return mapper.toGameResponseDto(gameDto, false, timeToBeatMap.get(igdbId));
                 })
                 .toList();
     }

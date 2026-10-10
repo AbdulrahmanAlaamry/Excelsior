@@ -1,5 +1,6 @@
-package dev.abdulrahman.excelsior.business.game;
+package dev.abdulrahman.excelsior.business.game.dto;
 
+import dev.abdulrahman.excelsior.business.game.GameTier;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 

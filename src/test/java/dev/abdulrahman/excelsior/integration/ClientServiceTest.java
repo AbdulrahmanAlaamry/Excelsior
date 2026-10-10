@@ -1,9 +1,9 @@
 package dev.abdulrahman.excelsior.integration;
 
 import dev.abdulrahman.excelsior.persistence.GameRepository;
+import dev.abdulrahman.excelsior.business.user.User;
 import dev.abdulrahman.excelsior.presentation.exception.GameNotFoundException;
-import dev.abdulrahman.excelsior.business.game.GameRequestDto;
-import dev.abdulrahman.excelsior.business.game.GameResponseDto;
+import dev.abdulrahman.excelsior.business.game.dto.GameResponseDto;
 import dev.abdulrahman.excelsior.integration.auth.AuthService;
 import dev.abdulrahman.excelsior.integration.dto.GameDto;
 import dev.abdulrahman.excelsior.integration.dto.TimeToBeatDto;
@@ -37,6 +37,8 @@ class ClientServiceTest {
 
     @Mock
     private DtoMapper mapper;
+
+    private User testUser = new User("test", "pass");
 
     @Mock
     private GameRepository repository;
@@ -100,18 +102,18 @@ class ClientServiceTest {
                 .setBody(ttbResponseBody)
                 .addHeader("Content-Type", "application/json"));
 
-        when(repository.existsByIgdbId(100L)).thenReturn(false);
+        when(repository.existsByUserAndIgdbId(testUser, 100L)).thenReturn(false);
 
         GameResponseDto expectedDto = new GameResponseDto(1L, 100L, "Awesome Game", 10.0, 20.0,
                 LocalDate.of(2023, 10, 15), "http://example.com/cover.jpg",
                 85.5, 120, "A great storyline", "A short summary", "engine", List.of("Action"), List.of("Sony"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), false, 0);
         when(mapper.toGameResponseDto(any(GameDto.class), eq(false), any(TimeToBeatDto.class))).thenReturn(expectedDto);
 
-        List<GameResponseDto> result = clientService.searchGames(searchQuery, 1, 0);
+        List<GameResponseDto> result = clientService.searchGames(searchQuery, 1, 0, testUser);
 
         assertEquals(List.of(expectedDto), result);
         verify(mapper, times(1)).toGameResponseDto(any(GameDto.class), eq(false), any(TimeToBeatDto.class));
-        verify(repository, times(1)).existsByIgdbId(100L);
+        verify(repository, times(1)).existsByUserAndIgdbId(testUser, 100L);
 
         var req1 = mockWebServer.takeRequest();
         assertEquals("/api/v4/games", req1.getPath());
@@ -135,7 +137,7 @@ class ClientServiceTest {
                 .setBody("[]")
                 .addHeader("Content-Type", "application/json"));
 
-        assertThrows(GameNotFoundException.class, () -> clientService.searchGames(searchQuery, 10, 0));
+        assertThrows(GameNotFoundException.class, () -> clientService.searchGames(searchQuery, 10, 0, testUser));
         verify(mapper, never()).toGameResponseDto(any(), anyBoolean(), any());
     }
 
@@ -150,7 +152,7 @@ class ClientServiceTest {
                 .setBody("")
                 .addHeader("Content-Type", "application/json"));
 
-        assertThrows(GameNotFoundException.class, () -> clientService.searchGames(searchQuery, 10, 0));
+        assertThrows(GameNotFoundException.class, () -> clientService.searchGames(searchQuery, 10, 0, testUser));
     }
 
     @Test

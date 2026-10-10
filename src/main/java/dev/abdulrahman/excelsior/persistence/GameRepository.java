@@ -1,9 +1,9 @@
 package dev.abdulrahman.excelsior.persistence;
 
 import dev.abdulrahman.excelsior.business.game.Game;
+import dev.abdulrahman.excelsior.business.user.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,13 +13,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface GameRepository extends JpaRepository<Game, Long> {
-    List<Game> findAll();
+    List<Game> findAllByUser(User user);
+    Optional<Game> findByUserAndId(User user, Long id);
+    Optional<Game> findByUserAndIgdbId(User user, Long igdbId);
+    boolean existsByUserAndIgdbId(User user, Long igdbId);
 
-    Optional<Game> findByIgdbId(Long id);
-
-    boolean existsByIgdbId(Long id);
-
-    @Query("SELECT g FROM Game g WHERE " +
+    @Query("SELECT g FROM Game g WHERE g.user = :user AND" +
            "(:minRating IS NULL OR g.rating >= :minRating) AND " +
            "(:maxRating IS NULL OR g.rating <= :maxRating) AND " +
            "(:nameContains IS NULL OR LOWER(g.name) LIKE LOWER(CONCAT('%', :nameContains, '%'))) AND " +
@@ -36,6 +35,7 @@ public interface GameRepository extends JpaRepository<Game, Long> {
            "(:status IS NULL OR g.status = :status) AND " +
            "(:platformContains IS NULL OR :platformContains MEMBER OF g.platforms)")
     Page<Game> findDynamically(
+            @Param("user") User user,
             @Param("minRating") Double minRating,
             @Param("maxRating") Double maxRating,
             @Param("nameContains") String nameContains,
