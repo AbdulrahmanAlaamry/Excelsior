@@ -12,6 +12,8 @@ import dev.abdulrahman.excelsior.persistence.UserRepository;
 import dev.abdulrahman.excelsior.presentation.exception.GameAlreadyExistsException;
 import dev.abdulrahman.excelsior.presentation.exception.GameNotFoundException;
 import dev.abdulrahman.excelsior.presentation.exception.UserNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -28,6 +30,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class GameService {
+
+    private static final Logger log = LoggerFactory.getLogger(GameService.class);
     private final GameRepository gameRepository;
     private final ClientService clientService;
     private final DtoMapper mapper;
@@ -46,11 +50,14 @@ public class GameService {
     }
 
     public void addGame(GameRequestDto dto) {
-        if (gameRepository.existsByUserAndIgdbId(getCurrentAuthUser(), dto.igdbId())) {
+        User user = getCurrentAuthUser();
+        if (gameRepository.existsByUserAndIgdbId(user, dto.igdbId())) {
+            log.warn("Attempt to add duplicate game '{}' (IGDB ID: {}) by user '{}'", dto.name(), dto.igdbId(), (user != null ? user.getUsername() : "anonymous"));
             throw new GameAlreadyExistsException("Game with IGDB ID '" + dto.igdbId() +
                     "' (" + dto.name() + ") already exists");
         }
-        gameRepository.save(mapper.toGameEntity(dto, getCurrentAuthUser()));
+        gameRepository.save(mapper.toGameEntity(dto, user));
+        log.info("User '{}' added game '{}' (IGDB ID: {}) [Tier: {}, Status: {}]", (user != null ? user.getUsername() : "anonymous"), dto.name(), dto.igdbId(), dto.tier(), dto.status());
     }
 
     public void addAllGames(Collection<GameRequestDto> dtos) {
@@ -65,14 +72,17 @@ public class GameService {
         Game game = findGameByUserAndId(id);
         game.setAll(dto);
         gameRepository.save(game);
+        log.info("User '{}' updated game ID {} ('{}')", (game.getUser() != null ? game.getUser().getUsername() : "unknown"), id, dto.name());
     }
 
     public void updateTier(Long id, GameTier tier) {
         updateField(id, Game::setTierValue, tier);
+        log.info("Updated game ID {} tier to {}", id, tier);
     }
 
     public void updateStatus(Long id, GameStatus status) {
         updateField(id, Game::setStatus, status);
+        log.info("Updated game ID {} status to {}", id, status);
     }
 
     public void updateTierPosition(GameTierPositionPatchDto dto) {
@@ -84,10 +94,13 @@ public class GameService {
 
     public void updateTierPositionForAll(Collection<GameTierPositionPatchDto> dtos) {
         dtos.forEach(this::updateTierPosition);
+        log.info("Updated tier positions for {} games", dtos.size());
     }
 
     public void deleteGame(Long id) {
-        gameRepository.delete(findGameByUserAndId(id));
+        Game game = findGameByUserAndId(id);
+        gameRepository.delete(game);
+        log.info("User '{}' deleted game ID {} ('{}')", (game.getUser() != null ? game.getUser().getUsername() : "unknown"), id, game.getName());
     }
 
     public Page<GameResponseDto> findGamesDynamically(

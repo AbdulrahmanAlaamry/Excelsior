@@ -1,8 +1,14 @@
 package dev.abdulrahman.excelsior.presentation.exception;
 
 import jakarta.validation.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,8 +20,12 @@ import java.time.Instant;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     @ExceptionHandler(BadCredentialsException.class)
     public ProblemDetail handleBadCredentialsException(BadCredentialsException ex) {
+        log.warn("Authentication failed: invalid username or password");
         return handleException(
                 HttpStatus.UNAUTHORIZED,
                 "Invalid username or password",
@@ -25,16 +35,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(GameNotFoundException.class)
     public ProblemDetail handleGameNotFound(GameNotFoundException ex) {
+        log.warn("Resource not found: {}", ex.getMessage());
         return handleException(ex, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(GameAlreadyExistsException.class)
     public ProblemDetail handleGameAlreadyExists(GameAlreadyExistsException ex) {
+        log.warn("Resource conflict: {}", ex.getMessage());
         return handleException(ex, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ProblemDetail handleConstraintViolation(ConstraintViolationException ex) {
+        log.warn("Constraint violation: {}", ex.getMessage());
         return handleException(
                 HttpStatus.BAD_REQUEST,
                 ex.getMessage().replaceFirst("^\\S+\\s+", ""), // Strip method name
@@ -44,6 +57,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
     public ProblemDetail handleUserNotFoundException(UserNotFoundException ex) {
+        log.warn("User not found: {}", ex.getMessage());
         return handleException(ex, HttpStatus.NOT_FOUND);
     }
 
@@ -59,6 +73,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .findFirst()
                 .orElse("Validation failed");
 
+        log.warn("Method argument validation failed: {}", detail);
+
         ProblemDetail problemDetail = handleException(
                 HttpStatus.BAD_REQUEST,
                 detail,
@@ -70,8 +86,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleAllUncaughtExceptions(Exception ex) {
-        System.err.println("CRITICAL UNEXPECTED ERROR: " + ex.getMessage());
-        ex.printStackTrace();
+        log.error("Unhandled exception caught by GlobalExceptionHandler: ", ex);
 
         String detail = "An unexpected error occurred on our end. Please try again later.";
         String title = "Internal Server Error";

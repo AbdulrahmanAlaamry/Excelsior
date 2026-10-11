@@ -8,6 +8,8 @@ import dev.abdulrahman.excelsior.integration.auth.AuthService;
 import dev.abdulrahman.excelsior.integration.dto.GameDto;
 import dev.abdulrahman.excelsior.integration.dto.TimeToBeatDto;
 import dev.abdulrahman.excelsior.mapper.DtoMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class ClientService {
+
+    private static final Logger log = LoggerFactory.getLogger(ClientService.class);
     private static final Integer DEFAULT_API_QUERY_LIMIT = 16;
     private static final Integer DEFAULT_API_QUERY_OFFSET = 0;
 
@@ -54,6 +58,9 @@ public class ClientService {
         if (offset == null) {
             offset = DEFAULT_API_QUERY_OFFSET;
         }
+
+        log.info("Executing IGDB search for query='{}', limit={}, offset={} (user='{}')",
+                query, limit, offset, (user != null ? user.getUsername() : "anonymous"));
 
         GameDto[] gameResponse = initiateRequest(
                 "/games",
@@ -122,6 +129,7 @@ public class ClientService {
         try {
             return executeRequest(endpoint, body, responseType);
         } catch (HttpClientErrorException.Unauthorized e) {
+            log.warn("Twitch OAuth token expired (HTTP 401). Invalidating cached token and retrying request to '{}'...", endpoint);
             cachedToken = null;
             return executeRequest(endpoint, body, responseType);
         }

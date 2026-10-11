@@ -35,3 +35,7 @@ build/
 # H2 Database Persistence
 data/
 *.db
+
+# Application Logs
+logs/
+*.log

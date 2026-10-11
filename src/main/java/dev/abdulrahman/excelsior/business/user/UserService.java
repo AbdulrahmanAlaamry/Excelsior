@@ -5,6 +5,8 @@ import dev.abdulrahman.excelsior.business.user.dto.UserRegistrationDto;
 import dev.abdulrahman.excelsior.persistence.UserRepository;
 import dev.abdulrahman.excelsior.presentation.exception.UserNotFoundException;
 import dev.abdulrahman.excelsior.security.JwtService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
+
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserRepository repository;
     private final PasswordEncoder encoder;
     private final AuthenticationManager authenticationManager;
@@ -37,17 +41,21 @@ public class UserService {
                         encoder.encode(dto.password())
                 )
         );
+        log.info("Registered new user: '{}'", dto.username());
     }
 
     public String loginUser(UserLoginDto dto) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(dto.username(), dto.password())
         );
-        return jwtService.generateToken(dto.username());
+        String token = jwtService.generateToken(dto.username());
+        log.info("User '{}' authenticated successfully (JWT issued)", dto.username());
+        return token;
     }
 
     public void deleteUser(Long id) {
         repository.delete(findUserById(id));
+        log.info("Deleted user with ID {}", id);
     }
 
     public User findUserById(Long id) {
