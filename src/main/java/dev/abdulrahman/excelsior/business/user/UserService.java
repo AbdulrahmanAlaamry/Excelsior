@@ -1,7 +1,10 @@
 package dev.abdulrahman.excelsior.business.user;
 
+import dev.abdulrahman.excelsior.business.game.GameService;
+import dev.abdulrahman.excelsior.business.user.dto.UserDto;
 import dev.abdulrahman.excelsior.business.user.dto.UserLoginDto;
 import dev.abdulrahman.excelsior.business.user.dto.UserRegistrationDto;
+import dev.abdulrahman.excelsior.mapper.DtoMapper;
 import dev.abdulrahman.excelsior.persistence.UserRepository;
 import dev.abdulrahman.excelsior.presentation.exception.UserNotFoundException;
 import dev.abdulrahman.excelsior.security.JwtService;
@@ -12,6 +15,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.util.List;
+
 @Service
 public class UserService {
 
@@ -20,17 +26,20 @@ public class UserService {
     private final PasswordEncoder encoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final DtoMapper mapper;
 
     public UserService(
             UserRepository repository,
             PasswordEncoder encoder,
             AuthenticationManager authenticationManager,
-            JwtService jwtService
+            JwtService jwtService,
+            DtoMapper mapper
     ) {
         this.repository = repository;
         this.encoder = encoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.mapper = mapper;
     }
 
     public void registerUser(UserRegistrationDto dto) {
@@ -38,7 +47,8 @@ public class UserService {
         repository.save(
                 new User(
                         dto.username(),
-                        encoder.encode(dto.password())
+                        encoder.encode(dto.password()),
+                        Instant.now()
                 )
         );
         log.info("Registered new user: '{}'", dto.username());
@@ -51,6 +61,12 @@ public class UserService {
         String token = jwtService.generateToken(dto.username());
         log.info("User '{}' authenticated successfully (JWT issued)", dto.username());
         return token;
+    }
+
+    public List<UserDto> getAllUsers() {
+        return repository.findAll().stream()
+                .map(mapper::toUserDto)
+                .toList();
     }
 
     public void deleteUser(Long id) {

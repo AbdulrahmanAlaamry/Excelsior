@@ -2,6 +2,7 @@ package dev.abdulrahman.excelsior.presentation;
 
 import dev.abdulrahman.excelsior.business.user.UserService;
 import dev.abdulrahman.excelsior.business.user.dto.JwtResponseDto;
+import dev.abdulrahman.excelsior.business.user.dto.UserDto;
 import dev.abdulrahman.excelsior.business.user.dto.UserLoginDto;
 import dev.abdulrahman.excelsior.business.user.dto.UserRegistrationDto;
 import jakarta.validation.Valid;
@@ -10,6 +11,8 @@ import jakarta.validation.constraints.Positive;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @Validated
@@ -31,6 +34,11 @@ public class UserController {
     public JwtResponseDto loginUser(@Valid @RequestBody UserLoginDto dto) {
         String token = service.loginUser(dto);
         return new JwtResponseDto(token);
+    }
+
+    @GetMapping
+    public List<UserDto> getAllUsers() {
+        return service.getAllUsers();
     }
 
     @DeleteMapping("/{id}")

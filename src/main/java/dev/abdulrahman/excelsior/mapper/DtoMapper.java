@@ -4,6 +4,7 @@ import dev.abdulrahman.excelsior.business.game.*;
 import dev.abdulrahman.excelsior.business.game.dto.GameRequestDto;
 import dev.abdulrahman.excelsior.business.game.dto.GameResponseDto;
 import dev.abdulrahman.excelsior.business.user.User;
+import dev.abdulrahman.excelsior.business.user.dto.UserDto;
 import dev.abdulrahman.excelsior.integration.dto.*;
 import org.springframework.stereotype.Component;
 
@@ -129,6 +130,15 @@ public class DtoMapper {
         return games.stream()
                 .map(this::toGameResponseDto)
                 .toList();
+    }
+
+    public UserDto toUserDto(User user) {
+        return new UserDto(
+                user.getId(),
+                user.getUsername(),
+                user.getRole().name(),
+                user.getCreatedAt()
+        );
     }
 
     private Double secondsToHours(Integer seconds) {

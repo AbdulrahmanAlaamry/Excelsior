@@ -3,6 +3,7 @@ package dev.abdulrahman.excelsior.business.user;
 import dev.abdulrahman.excelsior.business.game.Game;
 import jakarta.persistence.*;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,6 +16,7 @@ public class User {
 
     private String username;
     private String password;
+    private Instant createdAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Game> games;
@@ -24,9 +26,10 @@ public class User {
 
     protected User() {}
 
-    public User(String username, String password) {
+    public User(String username, String password, Instant createdAt) {
         this.username = username;
         this.password = password;
+        this.createdAt = createdAt;
     }
 
     public Long getId() {
@@ -51,6 +54,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
 
     public List<Game> getGames() {
