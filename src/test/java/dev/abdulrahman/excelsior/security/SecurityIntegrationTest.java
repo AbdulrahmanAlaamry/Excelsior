@@ -78,7 +78,7 @@ class SecurityIntegrationTest {
         String registerUsername = "regUser_" + System.currentTimeMillis();
         mockMvc.perform(post("/api/users/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"username\":\"" + registerUsername + "\",\"password\":\"password123\"}"))
+                .content("{\"username\":\"" + registerUsername + "\",\"password\":\"Password123\"}"))
                 .andExpect(status().isOk());
     }
 }

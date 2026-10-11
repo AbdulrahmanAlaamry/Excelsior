@@ -35,7 +35,7 @@ class UserControllerTest {
 
     @Test
     void registerUser_ValidRequest_ReturnsOk() throws Exception {
-        UserRegistrationDto request = new UserRegistrationDto("newuser", "password123");
+        UserRegistrationDto request = new UserRegistrationDto("newuser", "Password123");
 
         mockMvc.perform(post("/api/users/register")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -53,6 +53,34 @@ class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
+
+        verify(userService, never()).registerUser(any());
+    }
+
+    @Test
+    void registerUser_InvalidPasswordPattern_ReturnsBadRequest() throws Exception {
+        UserRegistrationDto request = new UserRegistrationDto("newuser", "passwordwithoutupper1");
+
+        mockMvc.perform(post("/api/users/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Validation Error"))
+                .andExpect(jsonPath("$.detail").value("Password must contain at least one uppercase letter, one lowercase letter, and one number"));
+
+        verify(userService, never()).registerUser(any());
+    }
+
+    @Test
+    void registerUser_InvalidUsernameCharacters_ReturnsBadRequest() throws Exception {
+        UserRegistrationDto request = new UserRegistrationDto("invalid user!", "Password123");
+
+        mockMvc.perform(post("/api/users/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Validation Error"))
+                .andExpect(jsonPath("$.detail").value("Username can only contain letters, numbers underscores and hyphens"));
 
         verify(userService, never()).registerUser(any());
     }

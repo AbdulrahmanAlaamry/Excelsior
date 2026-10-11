@@ -53,8 +53,8 @@ class UserServiceTest {
 
     @Test
     void registerUser_EncodesPasswordAndSaves() {
-        UserRegistrationDto dto = new UserRegistrationDto("testuser", "rawPassword");
-        when(encoder.encode("rawPassword")).thenReturn("encodedPassword");
+        UserRegistrationDto dto = new UserRegistrationDto("testuser", "Password123");
+        when(encoder.encode("Password123")).thenReturn("encodedPassword");
 
         userService.registerUser(dto);
 
