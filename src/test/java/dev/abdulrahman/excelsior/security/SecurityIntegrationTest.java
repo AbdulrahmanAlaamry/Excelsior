@@ -79,6 +79,6 @@ class SecurityIntegrationTest {
         mockMvc.perform(post("/api/users/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"username\":\"" + registerUsername + "\",\"password\":\"Password123\"}"))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 }

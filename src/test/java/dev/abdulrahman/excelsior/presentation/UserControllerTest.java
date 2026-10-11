@@ -34,13 +34,13 @@ class UserControllerTest {
     private UserService userService;
 
     @Test
-    void registerUser_ValidRequest_ReturnsOk() throws Exception {
+    void registerUser_ValidRequest_ReturnsCreated() throws Exception {
         UserRegistrationDto request = new UserRegistrationDto("newuser", "Password123");
 
         mockMvc.perform(post("/api/users/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         verify(userService, times(1)).registerUser(request);
     }
@@ -128,9 +128,9 @@ class UserControllerTest {
     }
 
     @Test
-    void deleteUser_ValidId_ReturnsOk() throws Exception {
+    void deleteUser_ValidId_ReturnsNoContent() throws Exception {
         mockMvc.perform(delete("/api/users/{id}", 1L))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         verify(userService, times(1)).deleteUser(1L);
     }

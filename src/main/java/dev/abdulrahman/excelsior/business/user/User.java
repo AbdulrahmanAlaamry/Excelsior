@@ -19,6 +19,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Game> games;
 
+    @Enumerated(EnumType.STRING)
+    private UserRole role = UserRole.USER;
+
     protected User() {}
 
     public User(String username, String password) {
@@ -58,12 +61,12 @@ public class User {
         this.games = games;
     }
 
-    public void addGame(Game game) {
-        if (game == null) {
-            return;
-        }
+    public UserRole getRole() {
+        return role;
+    }
 
-        games.add(game);
+    public void setRole(UserRole role) {
+        this.role = role;
     }
 
     @Override

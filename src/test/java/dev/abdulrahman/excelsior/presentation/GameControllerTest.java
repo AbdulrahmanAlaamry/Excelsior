@@ -164,14 +164,14 @@ class GameControllerTest {
     }
 
     @Test
-    void updateGame_ValidRequest_ReturnsOk() throws Exception {
+    void updateGame_ValidRequest_ReturnsNoContent() throws Exception {
         GameRequestDto requestDto = new GameRequestDto(12345L, "Halo 2", 12.0, 15.0, LocalDate.of(2004, 11, 9),
                 "url", 95.0, 100, "syn", "desc", "engine", List.of("Action"), List.of("Bungie"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"));
 
         mockMvc.perform(put("/api/games/{id}", 1L)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto)))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         verify(gameService, times(1)).updateGame(eq(1L), any(GameRequestDto.class));
     }
@@ -195,9 +195,9 @@ class GameControllerTest {
     }
 
     @Test
-    void deleteGame_GameExists_ReturnsOk() throws Exception {
+    void deleteGame_GameExists_ReturnsNoContent() throws Exception {
         mockMvc.perform(delete("/api/games/{id}", 1L))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         verify(gameService, times(1)).deleteGame(1L);
     }
@@ -252,16 +252,16 @@ class GameControllerTest {
     }
 
     @Test
-    void patchGame_ValidRequest_ReturnsOk() throws Exception {
+    void patchGame_ValidRequest_ReturnsNoContent() throws Exception {
         mockMvc.perform(patch("/api/games/{id}", 1L)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"tier\": \"S\"}"))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         verify(gameService, times(1)).updateTier(1L, GameTier.S);
     }
     @Test
-    void patchTierPositions_ValidRequest_ReturnsOk() throws Exception {
+    void patchTierPositions_ValidRequest_ReturnsNoContent() throws Exception {
         GameTierPositionPatchDto dto1 = new GameTierPositionPatchDto(1L, GameTier.S, 1);
         GameTierPositionPatchDto dto2 = new GameTierPositionPatchDto(2L, GameTier.A, 0);
         List<GameTierPositionPatchDto> dtos = List.of(dto1, dto2);
@@ -269,7 +269,7 @@ class GameControllerTest {
         mockMvc.perform(patch("/api/games/tier-positions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dtos)))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         verify(gameService, times(1)).updateTierPositionForAll(dtos);
     }

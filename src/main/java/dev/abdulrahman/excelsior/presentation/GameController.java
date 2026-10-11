@@ -70,6 +70,7 @@ public class GameController {
     }
 
     @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateGame(
             @Positive(message = INVALID_ID_MESSAGE)
             @PathVariable
@@ -83,6 +84,7 @@ public class GameController {
     }
 
     @PatchMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void patchGame(
             @Positive(message = INVALID_ID_MESSAGE)
             @PathVariable
@@ -102,11 +104,13 @@ public class GameController {
     }
 
     @PatchMapping("/tier-positions")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void patchTierPositions(@RequestBody Collection<@Valid GameTierPositionPatchDto> dtos) {
         service.updateTierPositionForAll(dtos);
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteGame(@Positive(message = INVALID_ID_MESSAGE) @PathVariable Long id) {
         this.service.deleteGame(id);
     }
