@@ -1,8 +1,10 @@
 package dev.abdulrahman.excelsior.business.user;
 
+import dev.abdulrahman.excelsior.business.user.dto.UserLoginDto;
 import dev.abdulrahman.excelsior.business.user.dto.UserRegistrationDto;
 import dev.abdulrahman.excelsior.persistence.UserRepository;
 import dev.abdulrahman.excelsior.presentation.exception.UserNotFoundException;
+import dev.abdulrahman.excelsior.security.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,6 +13,9 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -26,6 +31,12 @@ class UserServiceTest {
 
     @Mock
     private PasswordEncoder encoder;
+
+    @Mock
+    private AuthenticationManager authenticationManager;
+
+    @Mock
+    private JwtService jwtService;
 
     @InjectMocks
     private UserService userService;
@@ -51,6 +62,27 @@ class UserServiceTest {
         User savedUser = userCaptor.getValue();
         assertEquals("testuser", savedUser.getUsername());
         assertEquals("encodedPassword", savedUser.getPassword());
+    }
+
+    @Test
+    void loginUser_ValidCredentials_ReturnsToken() {
+        UserLoginDto dto = new UserLoginDto("testuser", "rawPassword");
+        when(jwtService.generateToken("testuser")).thenReturn("mocked-jwt-token");
+
+        String token = userService.loginUser(dto);
+
+        verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
+        assertEquals("mocked-jwt-token", token);
+    }
+
+    @Test
+    void loginUser_InvalidCredentials_ThrowsException() {
+        UserLoginDto dto = new UserLoginDto("testuser", "wrongPassword");
+        doThrow(new BadCredentialsException("Bad credentials"))
+                .when(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
+
+        assertThrows(BadCredentialsException.class, () -> userService.loginUser(dto));
+        verify(jwtService, never()).generateToken(anyString());
     }
 
     @Test

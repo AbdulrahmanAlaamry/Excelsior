@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -164,7 +165,7 @@ class ClientServiceTest {
                 .setBody("[]")
                 .addHeader("Content-Type", "application/json"));
 
-        Map<Integer, TimeToBeatDto> result = clientService.getTimeToBeat(java.util.Set.of(999));
+        Map<Integer, TimeToBeatDto> result = clientService.getTimeToBeat(Set.of(999));
 
         assertNotNull(result);
         assertTrue(result.isEmpty());

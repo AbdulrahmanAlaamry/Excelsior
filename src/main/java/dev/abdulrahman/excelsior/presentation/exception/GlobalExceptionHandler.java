@@ -3,6 +3,7 @@ package dev.abdulrahman.excelsior.presentation.exception;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.*;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -13,6 +14,15 @@ import java.time.Instant;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+    @ExceptionHandler(BadCredentialsException.class)
+    public ProblemDetail handleBadCredentialsException(BadCredentialsException ex) {
+        return handleException(
+                HttpStatus.UNAUTHORIZED,
+                "Invalid username or password",
+                "Unauthorized"
+        );
+    }
+
     @ExceptionHandler(GameNotFoundException.class)
     public ProblemDetail handleGameNotFound(GameNotFoundException ex) {
         return handleException(ex, HttpStatus.NOT_FOUND);
