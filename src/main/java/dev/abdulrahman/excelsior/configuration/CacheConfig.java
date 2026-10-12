@@ -1,4 +1,4 @@
-package dev.abdulrahman.excelsior.presentation.config;
+package dev.abdulrahman.excelsior.configuration;
 
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;

@@ -28,8 +28,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import org.springframework.context.annotation.Import;
-import dev.abdulrahman.excelsior.presentation.config.WebConfig;
-import dev.abdulrahman.excelsior.presentation.config.RateLimitInterceptor;
+import dev.abdulrahman.excelsior.configuration.WebConfig;
+import dev.abdulrahman.excelsior.security.RateLimitInterceptor;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dev.abdulrahman.excelsior.business.game.GameTier;
 import dev.abdulrahman.excelsior.business.game.GameStatus;

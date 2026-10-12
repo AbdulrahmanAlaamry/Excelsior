@@ -14,6 +14,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private String username;
     private String password;
     private Instant createdAt;
@@ -25,6 +26,10 @@ public class User {
     private UserRole role = UserRole.USER;
 
     protected User() {}
+
+    public User(String username, String password) {
+        this(username, password, Instant.now());
+    }
 
     public User(String username, String password, Instant createdAt) {
         this.username = username;

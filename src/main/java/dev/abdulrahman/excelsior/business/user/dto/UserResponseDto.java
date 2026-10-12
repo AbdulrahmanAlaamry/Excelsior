@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.Instant;
 
-public record UserDto(
+public record UserResponseDto(
         Long id,
         String username,
         String role,

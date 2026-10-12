@@ -1,5 +1,6 @@
-package dev.abdulrahman.excelsior.presentation.config;
+package dev.abdulrahman.excelsior.configuration;
 
+import dev.abdulrahman.excelsior.security.RateLimitInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -16,14 +17,12 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // Apply the rate limiter to ANY endpoint that calls the external IGDB API
         registry.addInterceptor(rateLimitInterceptor)
-                .addPathPatterns("/api/games/search", "/api/games/add");
+                .addPathPatterns("/api/games/search", "/api/games/add", "/api/users/check-username");
     }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        // Allows any frontend running on your local network to access the API without security blocks
         registry.addMapping("/**")
                 .allowedOriginPatterns("*") 
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")

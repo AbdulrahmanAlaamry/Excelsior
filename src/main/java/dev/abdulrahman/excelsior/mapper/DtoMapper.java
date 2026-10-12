@@ -4,7 +4,7 @@ import dev.abdulrahman.excelsior.business.game.*;
 import dev.abdulrahman.excelsior.business.game.dto.GameRequestDto;
 import dev.abdulrahman.excelsior.business.game.dto.GameResponseDto;
 import dev.abdulrahman.excelsior.business.user.User;
-import dev.abdulrahman.excelsior.business.user.dto.UserDto;
+import dev.abdulrahman.excelsior.business.user.dto.UserResponseDto;
 import dev.abdulrahman.excelsior.integration.dto.*;
 import org.springframework.stereotype.Component;
 
@@ -132,8 +132,8 @@ public class DtoMapper {
                 .toList();
     }
 
-    public UserDto toUserDto(User user) {
-        return new UserDto(
+    public UserResponseDto toUserDto(User user) {
+        return new UserResponseDto(
                 user.getId(),
                 user.getUsername(),
                 user.getRole().name(),

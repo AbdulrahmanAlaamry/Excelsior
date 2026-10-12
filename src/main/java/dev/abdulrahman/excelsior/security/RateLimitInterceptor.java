@@ -1,4 +1,4 @@
-package dev.abdulrahman.excelsior.presentation.config;
+package dev.abdulrahman.excelsior.security;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
