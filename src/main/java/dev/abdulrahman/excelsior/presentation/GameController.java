@@ -5,6 +5,7 @@ import dev.abdulrahman.excelsior.business.game.dto.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,8 @@ import java.util.List;
 @RequestMapping("/api/games")
 public class GameController {
     private static final String INVALID_ID_MESSAGE = "Game ID must be greater than 0.";
+    private static final String NULL_ID_MESSAGE = "Game ID cannot be null.";
+
     private final GameService service;
 
     public GameController(GameService service) {
@@ -45,7 +48,10 @@ public class GameController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void addAllGames(@RequestBody Collection<@Valid GameRequestDto> dtos) {
+    public void addAllGames(
+            @RequestBody
+            Collection<@Valid GameRequestDto> dtos
+    ) {
         this.service.addAllGames(dtos);
     }
 
@@ -55,7 +61,11 @@ public class GameController {
     }
 
     @GetMapping
-    public Page<GameResponseDto> getAllGames(@Valid GameFilterDto dto, Pageable pageable) {
+    public Page<GameResponseDto> getAllGames(
+            @Valid
+            GameFilterDto dto,
+            Pageable pageable
+    ) {
         return this.service.findGamesDynamically(
                 dto.minRating(), dto.maxRating(), dto.nameContains(), dto.genreContains(),
                 dto.minLengthNormal(), dto.maxLengthNormal(), dto.minLengthComplete(), dto.maxLengthComplete(),
@@ -65,13 +75,18 @@ public class GameController {
     }
 
     @GetMapping("/{id}")
-    public GameResponseDto getGame(@Positive(message = INVALID_ID_MESSAGE) @PathVariable Long id) {
+    public GameResponseDto getGame(
+            @NotNull(message = NULL_ID_MESSAGE)
+            @Positive(message = INVALID_ID_MESSAGE)
+            @PathVariable Long id
+    ) {
         return this.service.getGameById(id);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateGame(
+            @NotNull(message = NULL_ID_MESSAGE)
             @Positive(message = INVALID_ID_MESSAGE)
             @PathVariable
             Long id,
@@ -86,6 +101,7 @@ public class GameController {
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void patchGame(
+            @NotNull(message = NULL_ID_MESSAGE)
             @Positive(message = INVALID_ID_MESSAGE)
             @PathVariable
             Long id,
@@ -105,13 +121,21 @@ public class GameController {
 
     @PatchMapping("/tier-positions")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void patchTierPositions(@RequestBody Collection<@Valid GameTierPositionPatchDto> dtos) {
+    public void patchTierPositions(
+            @RequestBody
+            Collection<@Valid GameTierPositionPatchDto> dtos
+    ) {
         service.updateTierPositionForAll(dtos);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteGame(@Positive(message = INVALID_ID_MESSAGE) @PathVariable Long id) {
+    public void deleteGame(
+            @NotNull(message = NULL_ID_MESSAGE)
+            @Positive(message = INVALID_ID_MESSAGE)
+            @PathVariable
+            Long id
+    ) {
         this.service.deleteGame(id);
     }
 }
