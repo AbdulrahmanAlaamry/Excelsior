@@ -16,11 +16,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 public class UserService {
 
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
@@ -44,6 +46,7 @@ public class UserService {
         this.mapper = mapper;
     }
 
+    @Transactional
     public void registerUser(UserRegistrationDto dto) {
         checkUniqueness(dto.username());
 
@@ -72,16 +75,19 @@ public class UserService {
                 .toList();
     }
 
+    @Transactional
     public void deleteUser(Long id) {
         repository.delete(findUserById(id));
         log.info("Deleted user with ID {}", id);
     }
 
+    @Transactional
     public void updateUser(Long id, UserPatchDto dto) {
         User user = findUserById(id);
         updateUser(user, dto.username(), dto.password());
     }
 
+    @Transactional
     public void updateUser(UserDetails userDetails, UserPatchDto dto) {
         User userEntity = findUserByUsername(userDetails.getUsername());
         updateUser(userEntity, dto.username(), dto.password());

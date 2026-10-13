@@ -160,7 +160,7 @@ class GameServiceTest {
         when(gameRepository.findByUserAndId(testUser, 2L)).thenReturn(Optional.empty());
 
         assertThrows(GameNotFoundException.class, () -> gameService.deleteGame(2L));
-        verify(gameRepository, never()).delete(any());
+        verify(gameRepository, never()).delete(any(Game.class));
     }
 
     @Test

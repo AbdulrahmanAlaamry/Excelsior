@@ -20,6 +20,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -29,6 +30,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class GameService {
 
     private static final Logger log = LoggerFactory.getLogger(GameService.class);
@@ -49,6 +51,7 @@ public class GameService {
         return clientService.searchGames(query, limit, offset, getCurrentAuthUser());
     }
 
+    @Transactional
     public void addGame(GameRequestDto dto) {
         User user = getCurrentAuthUser();
         if (gameRepository.existsByUserAndIgdbId(user, dto.igdbId())) {
@@ -60,6 +63,7 @@ public class GameService {
         log.info("User '{}' added game '{}' (IGDB ID: {}) [Tier: {}, Status: {}]", (user != null ? user.getUsername() : "anonymous"), dto.name(), dto.igdbId(), dto.tier(), dto.status());
     }
 
+    @Transactional
     public void addAllGames(Collection<GameRequestDto> dtos) {
         dtos.forEach(this::addGame);
     }
@@ -68,6 +72,7 @@ public class GameService {
         return mapper.toGameResponseDto(findGameByUserAndId(id));
     }
 
+    @Transactional
     public void updateGame(Long id, GameRequestDto dto) {
         Game game = findGameByUserAndId(id);
         game.setAll(dto);
@@ -75,16 +80,19 @@ public class GameService {
         log.info("User '{}' updated game ID {} ('{}')", (game.getUser() != null ? game.getUser().getUsername() : "unknown"), id, dto.name());
     }
 
+    @Transactional
     public void updateTier(Long id, GameTier tier) {
         updateField(id, Game::setTierValue, tier);
         log.info("Updated game ID {} tier to {}", id, tier);
     }
 
+    @Transactional
     public void updateStatus(Long id, GameStatus status) {
         updateField(id, Game::setStatus, status);
         log.info("Updated game ID {} status to {}", id, status);
     }
 
+    @Transactional
     public void updateTierPosition(GameTierPositionPatchDto dto) {
         Game game = findGameByUserAndId(dto.id());
         game.setTierValue(dto.tier());
@@ -92,11 +100,13 @@ public class GameService {
         gameRepository.save(game);
     }
 
+    @Transactional
     public void updateTierPositionForAll(Collection<GameTierPositionPatchDto> dtos) {
         dtos.forEach(this::updateTierPosition);
         log.info("Updated tier positions for {} games", dtos.size());
     }
 
+    @Transactional
     public void deleteGame(Long id) {
         Game game = findGameByUserAndId(id);
         gameRepository.delete(game);

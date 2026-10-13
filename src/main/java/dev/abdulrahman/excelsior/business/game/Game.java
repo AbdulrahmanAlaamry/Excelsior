@@ -11,6 +11,16 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
+@Table(
+        name = "game",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_game_user_igdb", columnNames = {"user_id", "igdb_id"})
+        },
+        indexes = {
+                @Index(name = "idx_game_user_id", columnList = "user_id"),
+                @Index(name = "idx_game_user_igdb", columnList = "user_id, igdb_id")
+        }
+)
 public class Game {
 
     @Id
@@ -30,16 +40,16 @@ public class Game {
     @Column(length = 5000) private String synopsis;
     @Column(length = 5000) private String description;
     private String primaryEngine;
-    @ElementCollection private List<String> genres;
-    @ElementCollection private List<String> companies;
+    @ElementCollection(fetch = FetchType.LAZY) private List<String> genres;
+    @ElementCollection(fetch = FetchType.LAZY) private List<String> companies;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tier")
     private GameTier tierValue;
     
     @Enumerated(EnumType.STRING) private GameStatus status;
-    @ElementCollection private List<String> screenshotUrls;
-    @ElementCollection private List<String> platforms;
+    @ElementCollection(fetch = FetchType.LAZY) private List<String> screenshotUrls;
+    @ElementCollection(fetch = FetchType.LAZY) private List<String> platforms;
 
     @Formula("(CASE tier WHEN 'S' THEN 6 WHEN 'A' THEN 5 WHEN 'B' THEN 4 WHEN 'C' THEN 3 WHEN 'D' THEN 2 ELSE 1 END)")
     private Integer tier;
