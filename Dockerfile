@@ -20,9 +20,6 @@ RUN ./mvnw clean package -DskipTests
 FROM eclipse-temurin:25-jre
 WORKDIR /app
 
-# Ensure logs directory exists for Logback rolling file appender
-RUN mkdir -p /app/logs
-
 # Copy the compiled JAR artifact from the builder stage
 COPY --from=builder /build/target/excelsior-*.jar app.jar
 

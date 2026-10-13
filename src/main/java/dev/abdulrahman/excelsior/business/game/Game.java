@@ -17,8 +17,7 @@ import java.util.Objects;
                 @UniqueConstraint(name = "uk_game_user_igdb", columnNames = {"user_id", "igdb_id"})
         },
         indexes = {
-                @Index(name = "idx_game_user_id", columnList = "user_id"),
-                @Index(name = "idx_game_user_igdb", columnList = "user_id, igdb_id")
+                @Index(name = "idx_game_user_id", columnList = "user_id")
         }
 )
 public class Game {

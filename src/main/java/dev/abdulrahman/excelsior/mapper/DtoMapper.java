@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -115,12 +116,12 @@ public class DtoMapper {
                 game.getSynopsis(),
                 game.getDescription(),
                 game.getPrimaryEngine(),
-                game.getGenres(),
-                game.getCompanies(),
+                game.getGenres() != null ? new ArrayList<>(game.getGenres()) : List.of(),
+                game.getCompanies() != null ? new ArrayList<>(game.getCompanies()) : List.of(),
                 game.getTierValue(),
                 game.getStatus(),
-                game.getScreenshotUrls(),
-                game.getPlatforms(),
+                game.getScreenshotUrls() != null ? new ArrayList<>(game.getScreenshotUrls()) : List.of(),
+                game.getPlatforms() != null ? new ArrayList<>(game.getPlatforms()) : List.of(),
                 true,
                 game.getTierPosition()
         );
