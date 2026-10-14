@@ -1,13 +1,24 @@
-# Excelsior
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/lockup-white.svg">
+    <source media="(prefers-color-scheme: light)" srcset="assets/lockup-black.svg">
+    <img alt="Excelsior" src="assets/lockup-white.svg" width="360">
+  </picture>
+</p>
 
-[![Java 25](https://img.shields.io/badge/Java-25%20(Eclipse%20Temurin)-orange.svg?logo=eclipseadoptium&logoColor=white)](https://adoptium.net/temurin/releases/?version=25)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.x-brightgreen.svg)](https://spring.io/projects/spring-boot)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon%20Serverless-blue.svg)](https://neon.tech/)
-[![Spring Security](https://img.shields.io/badge/Security-Stateless%20JWT-red.svg)](https://spring.io/projects/spring-security)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?logo=docker&logoColor=white)](Dockerfile)
+[![Web App](https://img.shields.io/badge/Web%20App-excelsior--library.com-1F1F1F?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiI%2BCiAgPGRlZnM%2BCiAgICA8c3R5bGU%2BCiAgICAgIC5jbHMtMSB7CiAgICAgICAgZmlsbDogI2ZmZjsKICAgICAgfQogICAgPC9zdHlsZT4KICA8L2RlZnM%2BCiAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNOCwuMzFMLS4wMSw0LjM0djExLjM0aDIuOThsNS4wMy0xLjk3LDUuMDMsMS45N2gyLjk4VjQuMzRMOCwuMzFaTTEyLjk5LDEyLjY3bC00Ljk5LTIuNDctNC45OSwyLjQ3di0xLjk2bDQuOTgtMi41OCw0Ljk5LDIuNTh2MS45NlpNMTIuOTksOC4wMmwtNC45OS0yLjUxLTQuOTgsMi41MXYtMS45Mmw0Ljk5LTIuNTksNC45OSwyLjU5djEuOTJaIi8%2BCjwvc3ZnPg%3D%3D&logoColor=white)](https://excelsior-library.com)
+[![API Docs](https://img.shields.io/badge/API%20Docs-Swagger%20UI-85EA2D?logo=swagger&logoColor=white)](#api-reference)
+[![License: MIT](https://img.shields.io/badge/License-MIT-750014.svg)](LICENSE)
+[![Java 25](https://img.shields.io/badge/Java-25%20(Eclipse%20Temurin)-14003C?logo=eclipseadoptium&logoColor=white)](https://adoptium.net/temurin/releases/?version=25)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.x-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon%20Serverless-336791?logo=postgresql&logoColor=white)](https://neon.tech/)
+[![Spring Security](https://img.shields.io/badge/Security-Stateless%20JWT-red?logo=springsecurity&logoColor=white)](https://spring.io/projects/spring-security)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](Dockerfile)
 
 > **Excelsior** is a high-performance backend REST API powering a personal video game library, backlog tracker, and interactive drag-and-drop tier list manager. Built with **Spring Boot** and **Java 25**, it seamlessly integrates with the **Twitch IGDB API** to deliver rich video game metadata, playtime statistics, cover art, and media.
+
+**Live Application**: [https://excelsior-library.com](https://excelsior-library.com)  
+**API Documentation**: [Swagger UI Reference](#api-reference)
 
 ---
 
