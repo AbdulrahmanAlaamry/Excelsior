@@ -37,7 +37,7 @@
 
 Excelsior serves as the core engine for organizing, evaluating, and tracking video game collections. It allows players to:
 - Catalog games across custom progression statuses (**Playing**, **Completed**, **Backlog**, **Wishlist**, **Abandoned**).
-- Rank games into classic tier lists (**S**, **A**, **B**, **C**, **D**, **None**) with real-time persistent ordering support for frontend drag-and-drop interfaces (`dnd-kit`).
+- Rank games into classic tier lists (**S**, **A**, **B**, **C**, **D**, **None**) with real-time persistent ordering support for frontend drag-and-drop interfaces.
 - Query the global IGDB database in real time with automated Twitch OAuth2 token management and caching.
 - Dynamically filter large personal game collections across multiple facets (ratings, genres, release years, completion times, and platforms).
 
@@ -45,9 +45,9 @@ Excelsior serves as the core engine for organizing, evaluating, and tracking vid
 
 ## Key Features
 
-- **IGDB / Twitch OAuth2 Integration**: Seamless upstream queries to IGDB v4 for game summaries, engines, companies, cover art, 1080p screenshots, and playtime statistics (HowLongToBeat / TimeToBeat integration).
-- **Interactive Tier List Engine**: Real-time batch position updating (`/api/games/tier-positions`) specifically designed for drag-and-drop Kanban / tier-list boards.
-- **Dynamic Multi-Faceted Querying**: Powered by Spring Data JPA Specifications and Criteria API—enabling concurrent filtering across title, genre, platform, completion time, release date/year, tier, and rating ranges.
+- **IGDB / Twitch OAuth2 Integration**: Seamless upstream queries to IGDB v4 for game summaries, engines, companies, cover art, 1080p screenshots, and playtime statistics.
+- **Interactive Tier List Engine**: Real-time batch position updating (`/api/games/tier-positions`) specifically designed for drag-and-drop tier-list boards.
+- **Dynamic Multi-Faceted Querying**: Powered by Spring Data JPA Specifications and Criteria API, concurrent filtering across title, genre, platform, completion time, release date/year, tier, and rating ranges are possible.
 - **Stateless JWT Security**: Role-based access control (`ROLE_USER`, `ROLE_ADMIN`) with BCrypt password hashing and custom token filter chain.
 - **Token-Bucket Rate Limiting**: In-memory rate limiting using **Bucket4j** (20 req/min greedy refill per client IP) on sensitive endpoints (`/search`, `/check-username`, `/add`).
 - **Resilient Cloud Persistence**: Fine-tuned HikariCP connection pooling and batch fetching optimized for serverless **Neon PostgreSQL** cold starts.
@@ -71,19 +71,6 @@ dev.abdulrahman.excelsior/
 ├── persistence/                  # Spring Data JPA Repositories & Criteria Specifications
 ├── presentation/                 # REST Controllers & Global Problem Details handlers
 └── security/                     # JWT Service, Authentication Filters, & Bucket4j Interceptors
-```
-
-```mermaid
-flowchart TD
-    Client["Frontend (Next.js / TanStack Query)"] -->|HTTPS / JWT| Security["Spring Security & RateLimiter (Bucket4j)"]
-    Security --> Controller["Spring REST Controllers (/api/games, /api/users)"]
-    Controller --> Service["Service Layer (GameService, UserService)"]
-    Service --> Persistence["Spring Data JPA & Criteria Specifications"]
-    Service --> Cache["Spring Cache Manager"]
-    Cache <--> ClientService["IGDB Client (RestClient)"]
-    ClientService -->|Twitch OAuth2| IGDB["Twitch / IGDB API v4"]
-    Persistence --> Hikari["HikariCP Connection Pool"]
-    Hikari --> Neon["Neon Serverless PostgreSQL"]
 ```
 
 ---
@@ -112,23 +99,6 @@ flowchart TD
 - **In-Memory Testing DB**: H2 Database (configured with `MODE=PostgreSQL`)
 - **Build Tool**: Apache Maven (`mvnw`)
 - **Containerization**: Multi-stage Docker build
-
----
-
-## Database & Resilience Engineering
-
-Because Excelsior runs in the cloud against **Neon Serverless PostgreSQL**, the persistence layer implements specific optimizations:
-
-1. **HikariCP Dynamic Sizing**:
-   - `maximum-pool-size=10` and `minimum-idle=2` prevent aggressive connection eviction while maintaining rapid wake-up latency when serverless database compute resumes from idle.
-   - `keepalive-time=30000` prevents idle TCP connection dropouts from cloud firewalls.
-2. **N+1 Prevention via Batch Fetching**:
-   - High-cardinality element collections (`genres`, `companies`, `screenshotUrls`, `platforms`) are loaded lazily.
-   - `hibernate.default_batch_fetch_size=25` batches collection queries into single `IN` queries.
-3. **Database Constraints & Indexes**:
-   - Unique composite constraint on `(user_id, igdb_id)` ensures duplicate games cannot be cataloged by the same user.
-   - Indexed foreign key `idx_game_user_id` optimizes per-user lookups.
-   - Calculated SQL formula (`@Formula`) maps letter tiers (`S` → 6, `A` → 5, ..., `D` → 2, `NONE` → 1) to enable native SQL ordering.
 
 ---
 
