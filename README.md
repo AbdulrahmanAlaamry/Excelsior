@@ -1,6 +1,6 @@
 # Excelsior
 
-[![Java 25](https://img.shields.io/badge/Java-25-orange.svg)](https://openjdk.org/)
+[![Java 25](https://img.shields.io/badge/Java-25%20(Eclipse%20Temurin)-orange.svg?logo=eclipseadoptium&logoColor=white)](https://adoptium.net/temurin/releases/?version=25)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.x-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon%20Serverless-blue.svg)](https://neon.tech/)
 [![Spring Security](https://img.shields.io/badge/Security-Stateless%20JWT-red.svg)](https://spring.io/projects/spring-security)
@@ -8,27 +8,6 @@
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?logo=docker&logoColor=white)](Dockerfile)
 
 > **Excelsior** is a high-performance backend REST API powering a personal video game library, backlog tracker, and interactive drag-and-drop tier list manager. Built with **Spring Boot** and **Java 25**, it seamlessly integrates with the **Twitch IGDB API** to deliver rich video game metadata, playtime statistics, cover art, and media.
-
----
-
-## Table of Contents
-
-- [Overview](#-overview)
-- [Key Features](#-key-features)
-- [System Architecture](#-system-architecture)
-- [Tech Stack](#-tech-stack)
-- [API Reference](#-api-reference)
-  - [Authentication & Users](#1-authentication--users-apiusers)
-  - [Game Library & Tier List](#2-game-library--tier-list-apigames)
-  - [Observability & Documentation](#3-observability--docs)
-- [Configuration & Environment Variables](#-configuration--environment-variables)
-- [Getting Started](#-getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Local Installation](#local-installation)
-  - [Running Tests](#running-tests)
-- [Docker Deployment](#-docker-deployment)
-- [Security & Rate Limiting](#-security--rate-limiting)
-- [License](#-license)
 
 ---
 
