@@ -17,7 +17,6 @@
 - [Key Features](#-key-features)
 - [System Architecture](#-system-architecture)
 - [Tech Stack](#-tech-stack)
-- [Database & Resilience Engineering](#-database--resilience-engineering)
 - [API Reference](#-api-reference)
   - [Authentication & Users](#1-authentication--users-apiusers)
   - [Game Library & Tier List](#2-game-library--tier-list-apigames)
