@@ -1,5 +1,6 @@
 package dev.abdulrahman.excelsior.integration.auth;
 
+import dev.abdulrahman.excelsior.presentation.exception.TwitchAuthenticationException;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
@@ -59,7 +60,7 @@ class AuthServiceTest {
                 .setBody("")
                 .addHeader("Content-Type", "application/json"));
 
-        assertThrows(ApiAuthenticationException.class, () -> authService.fetchAccessToken());
+        assertThrows(TwitchAuthenticationException.class, () -> authService.fetchAccessToken());
     }
     
     @Test
@@ -75,6 +76,6 @@ class AuthServiceTest {
                 .setBody(responseBody)
                 .addHeader("Content-Type", "application/json"));
 
-        assertThrows(ApiAuthenticationException.class, () -> authService.fetchAccessToken());
+        assertThrows(TwitchAuthenticationException.class, () -> authService.fetchAccessToken());
     }
 }

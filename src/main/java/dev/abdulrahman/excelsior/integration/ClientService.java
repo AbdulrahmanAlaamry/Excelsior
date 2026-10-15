@@ -12,10 +12,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,7 +34,9 @@ public class ClientService {
     private final DtoMapper mapper;
     private final GameRepository repository;
     private final RestClient restClient;
-    private String cachedToken = null;
+
+    private final Object tokenLock = new Object();
+    private volatile String cachedToken = null;
 
     public ClientService(
             @Value("${igdb.client-id}") String clientId,
@@ -46,7 +50,14 @@ public class ClientService {
         this.authService = authService;
         this.mapper = mapper;
         this.repository = repository;
-        this.restClient = RestClient.create();
+
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(Duration.ofSeconds(5));
+        requestFactory.setReadTimeout(Duration.ofSeconds(10));
+
+        this.restClient = RestClient.builder()
+                .requestFactory(requestFactory)
+                .build();
     }
 
     @Cacheable("igdb-search")
@@ -130,7 +141,9 @@ public class ClientService {
             return executeRequest(endpoint, body, responseType);
         } catch (HttpClientErrorException.Unauthorized e) {
             log.warn("Twitch OAuth token expired (HTTP 401). Invalidating cached token and retrying request to '{}'...", endpoint);
-            cachedToken = null;
+            synchronized (tokenLock) {
+                cachedToken = null;
+            }
             return executeRequest(endpoint, body, responseType);
         }
     }
@@ -146,9 +159,15 @@ public class ClientService {
     }
 
     private String getAccessToken() {
-        if (cachedToken == null) {
-            cachedToken = authService.fetchAccessToken();
+        String token = cachedToken;
+        if (token == null) {
+            synchronized (tokenLock) {
+                token = cachedToken;
+                if (token == null) {
+                    cachedToken = token = authService.fetchAccessToken();
+                }
+            }
         }
-        return cachedToken;
+        return token;
     }
 }

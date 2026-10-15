@@ -67,6 +67,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleException(ex, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(TwitchAuthenticationException.class)
+    public ProblemDetail handleTwitchAuthenticationException(TwitchAuthenticationException ex) {
+        log.warn("An issue occurred during Twitch authentication: {}", ex.getMessage());
+        return handleException(ex, HttpStatus.BAD_GATEWAY);
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
