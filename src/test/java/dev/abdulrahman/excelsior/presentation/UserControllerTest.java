@@ -6,6 +6,7 @@ import dev.abdulrahman.excelsior.business.user.dto.UserLoginDto;
 import dev.abdulrahman.excelsior.business.user.dto.UserRegistrationDto;
 import dev.abdulrahman.excelsior.security.RateLimitInterceptor;
 import dev.abdulrahman.excelsior.configuration.WebConfig;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -28,10 +29,18 @@ class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private RateLimitInterceptor rateLimitInterceptor;
+
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @MockitoBean
     private UserService userService;
+
+    @BeforeEach
+    void setUp() {
+        rateLimitInterceptor.reset();
+    }
 
     @Test
     void registerUser_ValidRequest_ReturnsCreated() throws Exception {
@@ -141,5 +150,52 @@ class UserControllerTest {
                 .andExpect(status().isBadRequest());
 
         verify(userService, never()).deleteUser(any());
+    }
+
+    @Test
+    void loginUser_RateLimitExceeded_ReturnsTooManyRequests() throws Exception {
+        UserLoginDto request = new UserLoginDto("validuser", "password123");
+        when(userService.loginUser(request)).thenReturn("jwt.token.here");
+
+        for (int i = 0; i < 5; i++) {
+            mockMvc.perform(post("/api/users/login")
+                    .with(req -> { req.setRemoteAddr("198.51.100.1"); return req; })
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isOk());
+        }
+
+        mockMvc.perform(post("/api/users/login")
+                .with(req -> { req.setRemoteAddr("198.51.100.1"); return req; })
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isTooManyRequests())
+                .andExpect(header().exists("Retry-After"))
+                .andExpect(jsonPath("$.title").value("Too Many Requests"))
+                .andExpect(jsonPath("$.detail").value("Too many authentication attempts. Please wait a minute before trying again."));
+
+        verify(userService, times(5)).loginUser(request);
+    }
+
+    @Test
+    void loginUser_WithXForwardedForHeader_UsesForwardedIp() throws Exception {
+        UserLoginDto request = new UserLoginDto("validuser", "password123");
+        when(userService.loginUser(request)).thenReturn("jwt.token.here");
+
+        for (int i = 0; i < 5; i++) {
+            mockMvc.perform(post("/api/users/login")
+                    .header("X-Forwarded-For", "203.0.113.195, 10.0.0.1")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isOk());
+        }
+
+        mockMvc.perform(post("/api/users/login")
+                .header("X-Forwarded-For", "203.0.113.195, 10.0.0.1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isTooManyRequests())
+                .andExpect(header().exists("Retry-After"))
+                .andExpect(jsonPath("$.detail").value("Too many authentication attempts. Please wait a minute before trying again."));
     }
 }

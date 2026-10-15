@@ -16,6 +16,7 @@ out/
 
 # Local databases & logs
 data/
+logs/
 *.db
 *.mv.db
 *.log

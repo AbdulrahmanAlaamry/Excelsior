@@ -35,7 +35,7 @@ Excelsior serves as the core engine for organizing, evaluating, and tracking vid
 - **Interactive Tier List Engine**: Real-time batch position updating (`/api/games/tier-positions`) specifically designed for drag-and-drop tier-list boards.
 - **Dynamic Multi-Faceted Querying**: Powered by Spring Data JPA Specifications and Criteria API, concurrent filtering across title, genre, platform, completion time, release date/year, tier, and rating ranges are possible.
 - **Stateless JWT Security**: Role-based access control (`ROLE_USER`, `ROLE_ADMIN`) with BCrypt password hashing and custom token filter chain.
-- **Token-Bucket Rate Limiting**: In-memory rate limiting using **Bucket4j** (20 req/min greedy refill per client IP) on sensitive endpoints (`/search`, `/check-username`, `/add`).
+- **Multi-Tier Token-Bucket Rate Limiting**: In-memory rate limiting using **Bucket4j** with proxy-safe IP resolution, enforcing 5 req/min on authentication and 20 req/min on resource-intensive endpoints.
 - **Resilient Cloud Persistence**: Fine-tuned HikariCP connection pooling and batch fetching optimized for serverless **Neon PostgreSQL** cold starts.
 - **RFC 7807 Problem Details**: Standardized REST error envelopes across all exception handlers.
 - **Interactive API Docs**: Built-in Swagger UI and OpenAPI 3.0 specification via SpringDoc.
@@ -97,7 +97,7 @@ Interactive Swagger documentation is available at [excelsior-api.onrender.com/sw
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
 | `POST` | `/api/users/register` | Public | Register a new user account |
-| `POST` | `/api/users/login` | Public | Authenticate user credentials and return a Bearer JWT |
+| `POST` | `/api/users/login` | Public (Rate Limited) | Authenticate user credentials and return a Bearer JWT |
 | `GET` | `/api/users/check-username` | Public (Rate Limited) | Check whether a username is available |
 | `PATCH` | `/api/users` | Authenticated | Update username or password for current authenticated user |
 | `GET` | `/api/users` | Admin | Retrieve a list of all registered users |
@@ -232,10 +232,10 @@ docker run -p 8080:8080 \
 ## Security & Rate Limiting
 
 - **JWT Authentication**: Secure Bearer tokens with 24-hour expiration (`jwt.expiration-ms=86400000`).
-- **Rate Limiting**: To prevent scraping and upstream Twitch API quota exhaustion, Bucket4j enforces an IP-based token-bucket filter allowing 20 requests per minute with greedy refill on:
-  - `/api/games/search`
-  - `/api/users/check-username`
-  - `/api/games` (mutating endpoints)
+- **Multi-Tier Rate Limiting**: Token-bucket algorithm via Bucket4j with `X-Forwarded-For` proxy resolution:
+  - **Authentication Tier (5 req/min)**: Protects `/api/users/login` against brute-force and credential stuffing attacks.
+  - **General Tier (20 req/min)**: Throttles resource-intensive endpoints (`/api/games/search`, `/api/games/add`, `/api/users/check-username`, `/api/users/register`) to safeguard server bandwidth and upstream IGDB quotas.
+  - Returns RFC 6585 `429 Too Many Requests` responses with dynamic `Retry-After` headers.
 
 ---
 

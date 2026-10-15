@@ -18,7 +18,13 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(rateLimitInterceptor)
-                .addPathPatterns("/api/games/search", "/api/games/add", "/api/users/check-username");
+                .addPathPatterns(
+                        "/api/games/search",
+                        "/api/games/add",
+                        "/api/users/check-username",
+                        "/api/users/login",
+                        "/api/users/register"
+                );
     }
 
     @Override
