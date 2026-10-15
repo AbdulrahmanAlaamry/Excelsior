@@ -33,7 +33,6 @@ Excelsior serves as the core engine for organizing, evaluating, and tracking vid
 
 - **IGDB / Twitch OAuth2 Integration**: Seamless upstream queries to IGDB v4 for game summaries, engines, companies, cover art, 1080p screenshots, and playtime statistics.
 - **Interactive Tier List Engine**: Real-time batch position updating (`/api/games/tier-positions`) specifically designed for drag-and-drop tier-list boards.
-- **Dynamic Multi-Faceted Querying**: Powered by Spring Data JPA Specifications and Criteria API, concurrent filtering across title, genre, platform, completion time, release date/year, tier, and rating ranges are possible.
 - **Stateless JWT Security**: Role-based access control (`ROLE_USER`, `ROLE_ADMIN`) with BCrypt password hashing and custom token filter chain.
 - **Multi-Tier Token-Bucket Rate Limiting**: In-memory rate limiting using **Bucket4j** with proxy-safe IP resolution, enforcing 5 req/min on authentication and 20 req/min on resource-intensive endpoints.
 - **Resilient Cloud Persistence**: Fine-tuned HikariCP connection pooling and batch fetching optimized for serverless **Neon PostgreSQL** cold starts.
