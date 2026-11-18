@@ -9,7 +9,6 @@ import dev.abdulrahman.excelsior.presentation.exception.GameNotFoundException;
 import dev.abdulrahman.excelsior.persistence.GameRepository;
 import dev.abdulrahman.excelsior.mapper.DtoMapper;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -26,7 +25,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,6 +46,9 @@ class GameServiceTest {
 
     @Mock
     private DtoMapper mapper;
+
+    @Mock
+    private GameMetadataSyncService syncService;
 
     @InjectMocks
     private GameService gameService;
@@ -105,7 +109,7 @@ class GameServiceTest {
     }
 
     @Test
-    void getGameById_GameExists_ReturnsGame() {
+    void getGameById_GameExistsAndFresh_ReturnsGameWithoutSync() {
         when(gameRepository.findByUserAndId(testUser, 1L)).thenReturn(Optional.of(game));
         GameResponseDto responseDto = new GameResponseDto(1L, 123L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13), "cover", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), true, 0);
         when(mapper.toGameResponseDto(game)).thenReturn(responseDto);
@@ -115,6 +119,46 @@ class GameServiceTest {
         assertNotNull(result);
         assertEquals("Super Mario", result.name());
         verify(gameRepository, times(1)).findByUserAndId(testUser, 1L);
+        verifyNoInteractions(syncService);
+    }
+
+    @Test
+    void getGameById_NullMetadataTimestamp_TriggersSyncWithIgdbId() {
+        game.setMetadataUpdatedAt(null);
+        when(gameRepository.findByUserAndId(testUser, 1L)).thenReturn(Optional.of(game));
+        GameResponseDto responseDto = new GameResponseDto(1L, 123L, "Super Mario", 15.0, 20.0, LocalDate.of(1985, 9, 13), "cover", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), true, 0);
+        when(mapper.toGameResponseDto(game)).thenReturn(responseDto);
+
+        GameResponseDto result = gameService.getGameById(1L);
+
+        assertNotNull(result);
+        verify(syncService, times(1)).syncMetadata(123L);
+    }
+
+    @Test
+    void getGameById_RecentReleaseOlderThan24Hours_TriggersExpeditedSync() {
+        game.setReleaseDate(LocalDate.now().minusDays(5));
+        game.setMetadataUpdatedAt(Instant.now().minus(25, ChronoUnit.HOURS));
+        when(gameRepository.findByUserAndId(testUser, 1L)).thenReturn(Optional.of(game));
+        GameResponseDto responseDto = new GameResponseDto(1L, 123L, "Super Mario", 15.0, 20.0, game.getReleaseDate(), "cover", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), true, 0);
+        when(mapper.toGameResponseDto(game)).thenReturn(responseDto);
+
+        gameService.getGameById(1L);
+
+        verify(syncService, times(1)).syncMetadata(123L);
+    }
+
+    @Test
+    void getGameById_EpochReleaseDate_UsesDefaultSevenDayTtl() {
+        game.setReleaseDate(LocalDate.EPOCH);
+        game.setMetadataUpdatedAt(Instant.now().minus(2, ChronoUnit.DAYS));
+        when(gameRepository.findByUserAndId(testUser, 1L)).thenReturn(Optional.of(game));
+        GameResponseDto responseDto = new GameResponseDto(1L, 123L, "Super Mario", 15.0, 20.0, LocalDate.EPOCH, "cover", 95.0, 1000, "synopsis", "desc", "engine", List.of("Platformer"), List.of("Nintendo"), GameTier.S, GameStatus.COMPLETED, List.of("url2"), List.of("PC"), true, 0);
+        when(mapper.toGameResponseDto(game)).thenReturn(responseDto);
+
+        gameService.getGameById(1L);
+
+        verifyNoInteractions(syncService);
     }
 
     @Test
@@ -178,6 +222,7 @@ class GameServiceTest {
         assertEquals(1L, stats.gamesByTier().get(GameTier.S));
         assertEquals(1L, stats.gamesByTier().get(GameTier.A));
     }
+
     @Test
     void updateTierPositionForAll_UpdatesPositions() {
         GameTierPositionPatchDto dto1 = new GameTierPositionPatchDto(1L, GameTier.S, 1);

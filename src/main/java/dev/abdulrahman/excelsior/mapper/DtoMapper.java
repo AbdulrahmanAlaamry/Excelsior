@@ -3,6 +3,7 @@ package dev.abdulrahman.excelsior.mapper;
 import dev.abdulrahman.excelsior.business.game.*;
 import dev.abdulrahman.excelsior.business.game.dto.GameRequestDto;
 import dev.abdulrahman.excelsior.business.game.dto.GameResponseDto;
+import dev.abdulrahman.excelsior.business.game.dto.GameSyncDto;
 import dev.abdulrahman.excelsior.business.user.User;
 import dev.abdulrahman.excelsior.business.user.dto.UserResponseDto;
 import dev.abdulrahman.excelsior.integration.dto.*;
@@ -124,6 +125,26 @@ public class DtoMapper {
                 game.getPlatforms() != null ? new ArrayList<>(game.getPlatforms()) : List.of(),
                 true,
                 game.getTierPosition()
+        );
+    }
+
+    public GameSyncDto toGameSyncDto(GameDto gameDto, boolean isInLibrary, TimeToBeatDto timeToBeatDto) {
+        GameResponseDto dto = toGameResponseDto(gameDto, isInLibrary, timeToBeatDto);
+        return new GameSyncDto(
+                dto.name(),
+                dto.lengthNormal(),
+                dto.lengthComplete(),
+                dto.releaseDate(),
+                dto.coverUrl(),
+                dto.rating(),
+                dto.ratingCount(),
+                dto.synopsis(),
+                dto.description(),
+                dto.primaryEngine(),
+                dto.genres(),
+                dto.companies(),
+                dto.screenshotUrls(),
+                dto.platforms()
         );
     }
 

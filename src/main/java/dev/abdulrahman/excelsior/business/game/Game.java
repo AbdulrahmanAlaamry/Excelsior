@@ -1,10 +1,12 @@
 package dev.abdulrahman.excelsior.business.game;
 
 import dev.abdulrahman.excelsior.business.game.dto.GameRequestDto;
+import dev.abdulrahman.excelsior.business.game.dto.GameSyncDto;
 import dev.abdulrahman.excelsior.business.user.User;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Formula;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -58,6 +60,8 @@ public class Game {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    private Instant metadataUpdatedAt;
+
     protected Game() {}
 
     public Game(Long igdbId,
@@ -98,6 +102,7 @@ public class Game {
         setPlatforms(platforms);
         setTierPosition(0);
         setUser(user);
+        setMetadataUpdatedAt(Instant.now());
     }
 
     public Long getId() {
@@ -264,6 +269,14 @@ public class Game {
         this.user = user;
     }
 
+    public Instant getMetadataUpdatedAt() {
+        return metadataUpdatedAt;
+    }
+
+    public void setMetadataUpdatedAt(Instant metadataUpdatedAt) {
+        this.metadataUpdatedAt = metadataUpdatedAt;
+    }
+
     public void setAll(GameRequestDto dto) {
         setIgdbId(dto.igdbId());
         setName(dto.name());
@@ -282,6 +295,24 @@ public class Game {
         setStatus(dto.status());
         setScreenshotUrls(dto.screenshotUrls());
         setPlatforms(dto.platforms());
+    }
+
+    public void sync(GameSyncDto dto) {
+        setName(dto.name());
+        setLengthNormal(dto.lengthNormal());
+        setLengthComplete(dto.lengthComplete());
+        setReleaseDate(dto.releaseDate());
+        setCoverUrl(dto.coverUrl());
+        setRating(dto.rating());
+        setRatingCount(dto.ratingCount());
+        setSynopsis(dto.synopsis());
+        setDescription(dto.description());
+        setPrimaryEngine(dto.primaryEngine());
+        setGenres(dto.genres());
+        setCompanies(dto.companies());
+        setScreenshotUrls(dto.screenshotUrls());
+        setPlatforms(dto.platforms());
+        setMetadataUpdatedAt(Instant.now());
     }
 
     @Override

@@ -19,6 +19,7 @@ public interface GameRepository extends JpaRepository<Game, Long>, JpaSpecificat
     Optional<Game> findByUserAndId(User user, Long id);
     Optional<Game> findByUserAndIgdbId(User user, Long igdbId);
     boolean existsByUserAndIgdbId(User user, Long igdbId);
+    List<Game> findAllByIgdbId(Long igdbId);
 
     default Page<Game> findDynamically(
             User user,

@@ -1,5 +1,6 @@
 package dev.abdulrahman.excelsior.integration;
 
+import dev.abdulrahman.excelsior.business.game.dto.GameSyncDto;
 import dev.abdulrahman.excelsior.business.user.User;
 import dev.abdulrahman.excelsior.persistence.GameRepository;
 import dev.abdulrahman.excelsior.presentation.exception.GameNotFoundException;
@@ -27,6 +28,10 @@ public class ClientService {
     private static final Logger log = LoggerFactory.getLogger(ClientService.class);
     private static final Integer DEFAULT_API_QUERY_LIMIT = 16;
     private static final Integer DEFAULT_API_QUERY_OFFSET = 0;
+    private static final String IGDB_GAME_FIELDS = "fields id, cover.url, cover.width, cover.height, " +
+            "first_release_date, name, slug, storyline, summary, total_rating, total_rating_count, " +
+            "game_engines.name, genres.name, involved_companies.company.name, " +
+            "screenshots.url, screenshots.width, screenshots.height, platforms.name; ";
 
     private final String clientId;
     private final String apiUrl;
@@ -75,10 +80,7 @@ public class ClientService {
 
         GameDto[] gameResponse = initiateRequest(
                 "/games",
-                "fields id, cover.url, cover.width, cover.height, " +
-                        "first_release_date, name, slug, storyline, summary, total_rating, total_rating_count, " +
-                        "game_engines.name, genres.name, involved_companies.company.name, " +
-                        "screenshots.url, screenshots.width, screenshots.height, platforms.name; " +
+                        IGDB_GAME_FIELDS +
                         "search \"" + query + "\";" +
                         "where game_type = (0, 8, 9) & version_parent = null;" +
                         "limit " + limit + ";" +
@@ -86,7 +88,7 @@ public class ClientService {
                 GameDto[].class
         );
 
-        if (gameResponse == null || gameResponse.length == 0) {
+        if (isNullOrEmpty(gameResponse)) {
             throw new GameNotFoundException("Could not find a game with the query \"" + query + "\"");
         }
 
@@ -120,13 +122,9 @@ public class ClientService {
 
         String ids = String.join(", ", igdbIdStrings);
 
-        TimeToBeatDto[] response = initiateRequest(
-                "/game_time_to_beats",
-                "fields game_id, completely, normally; where game_id = (" + ids + "); limit 500;",
-                TimeToBeatDto[].class
-        );
+        TimeToBeatDto[] response = executeTimeToBeatQuery(ids, 500);
 
-        if (response == null || response.length == 0) {
+        if (isNullOrEmpty(response)) {
             return Map.of();
         }
 
@@ -134,6 +132,26 @@ public class ClientService {
         Arrays.stream(response).forEach(dto -> timeToBeatMap.put(dto.id(), dto));
 
         return timeToBeatMap;
+    }
+
+    public TimeToBeatDto getTimeToBeat(Long igdbId) {
+        TimeToBeatDto[] response = executeTimeToBeatQuery(String.valueOf(igdbId), 1);
+        return isNullOrEmpty(response) ? null : response[0];
+    }
+
+    public GameSyncDto fetchGame(Long igdbId) {
+        log.info("Initiating metadata sync for game with IGDB ID {}", igdbId);
+        GameDto[] gameDtos = initiateRequest(
+                "/games",
+                IGDB_GAME_FIELDS + " where id = " + igdbId + "; limit 1;",
+                GameDto[].class
+        );
+
+        if (isNullOrEmpty(gameDtos)) {
+            throw new GameNotFoundException("Could not find a game with IGDB ID " + igdbId);
+        }
+
+        return mapper.toGameSyncDto(gameDtos[0], true, getTimeToBeat(igdbId));
     }
 
     private <T> T initiateRequest(String endpoint, String body, Class<T> responseType) {
@@ -169,5 +187,17 @@ public class ClientService {
             }
         }
         return token;
+    }
+
+    private <T> boolean isNullOrEmpty(T[] arr) {
+        return arr == null || arr.length == 0;
+    }
+
+    private TimeToBeatDto[] executeTimeToBeatQuery(String id, Integer limit) {
+        return initiateRequest(
+                "/game_time_to_beats",
+                "fields game_id, completely, normally; where game_id = (" + id + "); limit " + limit + ";",
+                TimeToBeatDto[].class
+        );
     }
 }

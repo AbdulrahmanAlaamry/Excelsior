@@ -22,7 +22,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -34,17 +36,23 @@ import java.util.stream.Collectors;
 public class GameService {
 
     private static final Logger log = LoggerFactory.getLogger(GameService.class);
+    private static final int EXPEDITED_TTL_THRESHOLD_DAYS = 30;
+    private static final int EXPEDITED_TTL_HOURS = 24;
+    private static final int DEFAULT_TTL_DAYS = 7;
+
     private final GameRepository gameRepository;
     private final ClientService clientService;
     private final DtoMapper mapper;
     private final UserRepository userRepository;
+    private final GameMetadataSyncService syncService;
 
     public GameService(GameRepository gameRepository, ClientService clientService,
-                       DtoMapper mapper, UserRepository userRepository) {
+                       DtoMapper mapper, UserRepository userRepository, GameMetadataSyncService syncService) {
         this.gameRepository = gameRepository;
         this.clientService = clientService;
         this.mapper = mapper;
         this.userRepository = userRepository;
+        this.syncService = syncService;
     }
 
     public List<GameResponseDto> searchGame(String query, Integer limit, Integer offset) {
@@ -69,7 +77,11 @@ public class GameService {
     }
 
     public GameResponseDto getGameById(Long id) {
-        return mapper.toGameResponseDto(findGameByUserAndId(id));
+        Game game = findGameByUserAndId(id);
+        if (isMetadataStale(game) && game.getIgdbId() != null) {
+            syncService.syncMetadata(game.getIgdbId());
+        }
+        return mapper.toGameResponseDto(game);
     }
 
     @Transactional
@@ -164,5 +176,23 @@ public class GameService {
         String username = auth.getName();
         return userRepository.findByUsername(username)
                 .orElseThrow(UserNotFoundException::new);
+    }
+
+    private boolean isMetadataStale(Game game) {
+        Instant lastUpdate = game.getMetadataUpdatedAt();
+
+        if (lastUpdate == null) {
+            return true;
+        }
+
+        LocalDate releaseDate = game.getReleaseDate();
+        LocalDate expeditedThreshold = LocalDate.now().minusDays(EXPEDITED_TTL_THRESHOLD_DAYS);
+        if (releaseDate != null && !releaseDate.isBefore(expeditedThreshold)) {
+            Instant expeditedTtl = Instant.now().minus(EXPEDITED_TTL_HOURS, ChronoUnit.HOURS);
+            return lastUpdate.isBefore(expeditedTtl);
+        }
+
+        Instant defaultTtl = Instant.now().minus(DEFAULT_TTL_DAYS, ChronoUnit.DAYS);
+        return lastUpdate.isBefore(defaultTtl);
     }
 }
