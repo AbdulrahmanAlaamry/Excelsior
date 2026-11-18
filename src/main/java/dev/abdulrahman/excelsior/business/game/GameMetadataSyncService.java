@@ -67,7 +67,7 @@ public class GameMetadataSyncService {
                 log.info("Synced IGDB metadata for {} library record(s) with IGDB ID {}", staleGames.size(), igdbId);
             });
         } catch (Exception ex) {
-            log.warn("Background metadata sync failed for IGDB ID {}: {}", igdbId, ex.getMessage());
+            log.warn("Background metadata sync failed for IGDB ID {}", igdbId, ex);
         } finally {
             inFlightIgdbIds.remove(igdbId);
         }

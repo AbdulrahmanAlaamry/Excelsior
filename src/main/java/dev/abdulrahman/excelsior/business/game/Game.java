@@ -8,7 +8,7 @@ import org.hibernate.annotations.Formula;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -206,7 +206,7 @@ public class Game {
     }
 
     public void setGenres(List<String> genres) {
-        this.genres = genres;
+        this.genres = toMutableList(genres);
     }
 
     public List<String> getCompanies() {
@@ -214,7 +214,7 @@ public class Game {
     }
 
     public void setCompanies(List<String> companies) {
-        this.companies = companies;
+        this.companies = toMutableList(companies);
     }
 
     public GameTier getTierValue() {
@@ -238,7 +238,7 @@ public class Game {
     }
 
     public void setScreenshotUrls(List<String> screenshotUrls) {
-        this.screenshotUrls = screenshotUrls;
+        this.screenshotUrls = toMutableList(screenshotUrls);
     }
 
     public List<String> getPlatforms() {
@@ -246,7 +246,7 @@ public class Game {
     }
 
     public void setPlatforms(List<String> platforms) {
-        this.platforms = platforms;
+        this.platforms = toMutableList(platforms);
     }
 
     public Integer getTier() {
@@ -313,6 +313,10 @@ public class Game {
         setScreenshotUrls(dto.screenshotUrls());
         setPlatforms(dto.platforms());
         setMetadataUpdatedAt(Instant.now());
+    }
+
+    private List<String> toMutableList(List<String> list) {
+        return list != null ? new ArrayList<>(list) : new ArrayList<>();
     }
 
     @Override
