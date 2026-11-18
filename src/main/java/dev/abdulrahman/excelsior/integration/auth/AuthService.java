@@ -37,7 +37,7 @@ public class AuthService {
                 .build();
     }
 
-    public synchronized String fetchAccessToken() {
+    public synchronized AuthResponse fetchTokenDetails() {
         log.info("Requesting new Twitch OAuth2 access token...");
 
         AuthResponse response = restClient.post()
@@ -50,7 +50,11 @@ public class AuthService {
             throw new TwitchAuthenticationException("Twitch OAuth2 did not return an access token");
         }
 
-        log.info("Twitch OAuth2 access token successfully acquired");
-        return response.accessToken();
+        log.info("Twitch OAuth2 access token successfully acquired (expires in {}s)", response.expiresIn());
+        return response;
+    }
+
+    public synchronized String fetchAccessToken() {
+        return fetchTokenDetails().accessToken();
     }
 }

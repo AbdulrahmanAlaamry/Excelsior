@@ -1,13 +1,15 @@
 package dev.abdulrahman.excelsior.integration;
 
-import dev.abdulrahman.excelsior.persistence.GameRepository;
-import dev.abdulrahman.excelsior.business.user.User;
-import dev.abdulrahman.excelsior.presentation.exception.GameNotFoundException;
+import dev.abdulrahman.excelsior.business.game.GameStatus;
+import dev.abdulrahman.excelsior.business.game.GameTier;
 import dev.abdulrahman.excelsior.business.game.dto.GameResponseDto;
-import dev.abdulrahman.excelsior.integration.auth.AuthService;
+import dev.abdulrahman.excelsior.business.user.User;
+import dev.abdulrahman.excelsior.integration.auth.TwitchTokenService;
 import dev.abdulrahman.excelsior.integration.dto.GameDto;
 import dev.abdulrahman.excelsior.integration.dto.TimeToBeatDto;
 import dev.abdulrahman.excelsior.mapper.DtoMapper;
+import dev.abdulrahman.excelsior.persistence.GameRepository;
+import dev.abdulrahman.excelsior.presentation.exception.GameNotFoundException;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
@@ -16,9 +18,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import dev.abdulrahman.excelsior.business.game.GameTier;
-import dev.abdulrahman.excelsior.business.game.GameStatus;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -34,7 +33,7 @@ import static org.mockito.Mockito.*;
 class ClientServiceTest {
 
     @Mock
-    private AuthService authService;
+    private TwitchTokenService tokenService;
 
     @Mock
     private DtoMapper mapper;
@@ -55,7 +54,7 @@ class ClientServiceTest {
         mockWebServer.start();
 
         String apiUrl = mockWebServer.url("/api/v4").toString();
-        clientService = new ClientService(clientId, apiUrl, authService, mapper, repository);
+        clientService = new ClientService(clientId, apiUrl, tokenService, mapper, repository);
     }
 
     @AfterEach
@@ -67,8 +66,8 @@ class ClientServiceTest {
     void searchGames_SuccessfulMatch_ReturnsGameResponseDto() throws Exception {
         String searchQuery = "Zelda";
         String token = "valid-token";
-        
-        when(authService.fetchAccessToken()).thenReturn(token);
+
+        when(tokenService.getAccessToken()).thenReturn(token);
 
         String gameResponseBody = """
                 [
@@ -128,11 +127,11 @@ class ClientServiceTest {
     }
 
     @Test
-    void searchGames_NoResults_ThrowsGameNotFoundException() throws Exception {
+    void searchGames_NoResults_ThrowsGameNotFoundException() {
         String searchQuery = "UnknownGame";
         String token = "valid-token";
-        
-        when(authService.fetchAccessToken()).thenReturn(token);
+
+        when(tokenService.getAccessToken()).thenReturn(token);
 
         mockWebServer.enqueue(new MockResponse()
                 .setBody("[]")
@@ -147,7 +146,7 @@ class ClientServiceTest {
         String searchQuery = "UnknownGame";
         String token = "valid-token";
 
-        when(authService.fetchAccessToken()).thenReturn(token);
+        when(tokenService.getAccessToken()).thenReturn(token);
 
         mockWebServer.enqueue(new MockResponse()
                 .setBody("")
@@ -159,7 +158,7 @@ class ClientServiceTest {
     @Test
     void getTimeToBeat_EmptyResponse_ReturnsZeros() {
         String token = "valid-token";
-        when(authService.fetchAccessToken()).thenReturn(token);
+        when(tokenService.getAccessToken()).thenReturn(token);
 
         mockWebServer.enqueue(new MockResponse()
                 .setBody("[]")
@@ -169,5 +168,26 @@ class ClientServiceTest {
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getTimeToBeat_UnauthorizedToken_InvalidatesExpiredTokenAndRetries() throws Exception {
+        when(tokenService.getAccessToken()).thenReturn("expired-token", "fresh-token");
+
+        mockWebServer.enqueue(new MockResponse().setResponseCode(401));
+        mockWebServer.enqueue(new MockResponse()
+                .setBody("[{\"game_id\": 999, \"completely\": 7200, \"normally\": 3600}]")
+                .addHeader("Content-Type", "application/json"));
+
+        TimeToBeatDto result = clientService.getTimeToBeat(999L);
+
+        assertNotNull(result);
+        assertEquals(3600, result.normally());
+        verify(tokenService, times(1)).invalidateToken("expired-token");
+
+        var firstReq = mockWebServer.takeRequest();
+        assertEquals("Bearer expired-token", firstReq.getHeader("Authorization"));
+        var retryReq = mockWebServer.takeRequest();
+        assertEquals("Bearer fresh-token", retryReq.getHeader("Authorization"));
     }
 }

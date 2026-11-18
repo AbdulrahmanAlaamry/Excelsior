@@ -1,14 +1,14 @@
 package dev.abdulrahman.excelsior.integration;
 
+import dev.abdulrahman.excelsior.business.game.dto.GameResponseDto;
 import dev.abdulrahman.excelsior.business.game.dto.GameSyncDto;
 import dev.abdulrahman.excelsior.business.user.User;
-import dev.abdulrahman.excelsior.persistence.GameRepository;
-import dev.abdulrahman.excelsior.presentation.exception.GameNotFoundException;
-import dev.abdulrahman.excelsior.business.game.dto.GameResponseDto;
-import dev.abdulrahman.excelsior.integration.auth.AuthService;
+import dev.abdulrahman.excelsior.integration.auth.TwitchTokenService;
 import dev.abdulrahman.excelsior.integration.dto.GameDto;
 import dev.abdulrahman.excelsior.integration.dto.TimeToBeatDto;
 import dev.abdulrahman.excelsior.mapper.DtoMapper;
+import dev.abdulrahman.excelsior.persistence.GameRepository;
+import dev.abdulrahman.excelsior.presentation.exception.GameNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,24 +35,21 @@ public class ClientService {
 
     private final String clientId;
     private final String apiUrl;
-    private final AuthService authService;
+    private final TwitchTokenService tokenService;
     private final DtoMapper mapper;
     private final GameRepository repository;
     private final RestClient restClient;
 
-    private final Object tokenLock = new Object();
-    private volatile String cachedToken = null;
-
     public ClientService(
             @Value("${igdb.client-id}") String clientId,
             @Value("${igdb.api-url}") String apiUrl,
-            AuthService authService,
+            TwitchTokenService tokenService,
             DtoMapper mapper,
             GameRepository repository
     ) {
         this.clientId = clientId;
         this.apiUrl = apiUrl;
-        this.authService = authService;
+        this.tokenService = tokenService;
         this.mapper = mapper;
         this.repository = repository;
 
@@ -151,42 +148,29 @@ public class ClientService {
             throw new GameNotFoundException("Could not find a game with IGDB ID " + igdbId);
         }
 
+        log.info("Fetched game with IGDB ID {} from IGDB", igdbId);
         return mapper.toGameSyncDto(gameDtos[0], true, getTimeToBeat(igdbId));
     }
 
     private <T> T initiateRequest(String endpoint, String body, Class<T> responseType) {
+        String token = tokenService.getAccessToken();
         try {
-            return executeRequest(endpoint, body, responseType);
+            return executeRequest(endpoint, body, responseType, token);
         } catch (HttpClientErrorException.Unauthorized e) {
             log.warn("Twitch OAuth token expired (HTTP 401). Invalidating cached token and retrying request to '{}'...", endpoint);
-            synchronized (tokenLock) {
-                cachedToken = null;
-            }
-            return executeRequest(endpoint, body, responseType);
+            tokenService.invalidateToken(token);
+            return executeRequest(endpoint, body, responseType, tokenService.getAccessToken());
         }
     }
 
-    private <T> T executeRequest(String endpoint, String body, Class<T> responseType) {
+    private <T> T executeRequest(String endpoint, String body, Class<T> responseType, String accessToken) {
         return restClient.post()
                 .uri(apiUrl + endpoint)
                 .header("Client-ID", clientId)
-                .header("Authorization", "Bearer " + getAccessToken())
+                .header("Authorization", "Bearer " + accessToken)
                 .body(body)
                 .retrieve()
                 .body(responseType);
-    }
-
-    private String getAccessToken() {
-        String token = cachedToken;
-        if (token == null) {
-            synchronized (tokenLock) {
-                token = cachedToken;
-                if (token == null) {
-                    cachedToken = token = authService.fetchAccessToken();
-                }
-            }
-        }
-        return token;
     }
 
     private <T> boolean isNullOrEmpty(T[] arr) {
